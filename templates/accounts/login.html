@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - Mushanai{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 500px; margin: 3rem auto;">
+    <div class="card">
+        <div class="card-header">Login</div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+        </form>
+        
+        <div style="margin-top: 1.5rem; text-align: center; color: #666;">
+            Don't have an account? 
+            <a href="{% url 'customer_signup' %}" style="color: #be8400;">Sign up as customer</a> or 
+            <a href="{% url 'vendor_signup' %}" style="color: #be8400;">Sign up as vendor</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

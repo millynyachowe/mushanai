@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Discussion - Vendor Forum{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <a href="{% url 'vendor_discussions' %}" class="btn btn-outline-secondary mb-3">
+                <i class="fas fa-arrow-left"></i> Back to Discussions
+            </a>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-plus"></i> Create New Discussion</h5>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                    <div class="alert-container">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label for="category" class="form-label">Category *</label>
+                            <select class="form-select" id="category" name="category" required>
+                                <option value="">Select a category...</option>
+                                {% for category in categories %}
+                                <option value="{{ category.id }}">{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <small class="text-muted">Choose the most relevant category for your discussion</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="title" class="form-label">Discussion Title *</label>
+                            <input type="text" class="form-control" id="title" name="title" required maxlength="200" placeholder="Enter a clear and descriptive title">
+                            <small class="text-muted">Maximum 200 characters</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="content" class="form-label">Content *</label>
+                            <textarea class="form-control" id="content" name="content" rows="10" required placeholder="Share your thoughts, questions, or experiences..."></textarea>
+                            <small class="text-muted">Be respectful and constructive in your discussion</small>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Discussion Guidelines:</strong>
+                            <ul class="mb-0 mt-2">
+                                <li>Be respectful to other vendors</li>
+                                <li>Stay on topic and choose the right category</li>
+                                <li>Provide helpful and constructive feedback</li>
+                                <li>No spam or promotional content</li>
+                            </ul>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'vendor_discussions' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Create Discussion
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

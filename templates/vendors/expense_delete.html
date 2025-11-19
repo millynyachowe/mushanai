@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Expense - {{ request.user.vendor_profile.company_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <a href="{% url 'vendor_expense_detail' expense.id %}" class="btn btn-outline-secondary mb-3">
+                <i class="fas fa-arrow-left"></i> Back to Expense
+            </a>
+
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Confirm Delete</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <strong>Warning:</strong> This action cannot be undone!
+                    </div>
+
+                    <h5 class="mb-3">Are you sure you want to delete this expense?</h5>
+
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <div class="row mb-2">
+                                <div class="col-4 text-muted">Description:</div>
+                                <div class="col-8"><strong>{{ expense.description }}</strong></div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4 text-muted">Category:</div>
+                                <div class="col-8"><span class="badge bg-secondary">{{ expense.get_category_display }}</span></div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4 text-muted">Amount:</div>
+                                <div class="col-8"><strong class="text-danger">${{ expense.amount }}</strong></div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4 text-muted">Date:</div>
+                                <div class="col-8">{{ expense.expense_date|date:"F d, Y" }}</div>
+                            </div>
+                            {% if expense.company %}
+                            <div class="row">
+                                <div class="col-4 text-muted">Company:</div>
+                                <div class="col-8">{{ expense.company.name }}</div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="fas fa-trash"></i> Yes, Delete This Expense
+                            </button>
+                            <a href="{% url 'vendor_expense_detail' expense.id %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> No, Keep It
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="alert alert-info mt-3">
+                <i class="fas fa-info-circle"></i>
+                <strong>Note:</strong> Deleting this expense will remove it from all reports and financial summaries. This action is permanent and cannot be reversed.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

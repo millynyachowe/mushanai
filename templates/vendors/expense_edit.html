@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Expense - {{ request.user.vendor_profile.company_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <a href="{% url 'vendor_expense_detail' expense.id %}" class="btn btn-outline-secondary mb-3">
+                <i class="fas fa-arrow-left"></i> Back to Expense
+            </a>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-edit"></i> Edit Expense</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        {% if companies %}
+                        <div class="mb-3">
+                            <label for="company_id" class="form-label">Company</label>
+                            <select class="form-select" id="company_id" name="company_id">
+                                <option value="">Default Company</option>
+                                {% for company in companies %}
+                                <option value="{{ company.id }}" {% if expense.company and expense.company.id == company.id %}selected{% endif %}>{{ company.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description *</label>
+                            <input type="text" class="form-control" id="description" name="description" value="{{ expense.description }}" required maxlength="200">
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="category" class="form-label">Category *</label>
+                                <select class="form-select" id="category" name="category" required>
+                                    <option value="">Select category...</option>
+                                    <option value="SUPPLIES" {% if expense.category == 'SUPPLIES' %}selected{% endif %}>Supplies & Materials</option>
+                                    <option value="SHIPPING" {% if expense.category == 'SHIPPING' %}selected{% endif %}>Shipping & Delivery</option>
+                                    <option value="MARKETING" {% if expense.category == 'MARKETING' %}selected{% endif %}>Marketing & Advertising</option>
+                                    <option value="UTILITIES" {% if expense.category == 'UTILITIES' %}selected{% endif %}>Utilities</option>
+                                    <option value="RENT" {% if expense.category == 'RENT' %}selected{% endif %}>Rent</option>
+                                    <option value="SALARIES" {% if expense.category == 'SALARIES' %}selected{% endif %}>Salaries & Wages</option>
+                                    <option value="EQUIPMENT" {% if expense.category == 'EQUIPMENT' %}selected{% endif %}>Equipment</option>
+                                    <option value="PROFESSIONAL_SERVICES" {% if expense.category == 'PROFESSIONAL_SERVICES' %}selected{% endif %}>Professional Services</option>
+                                    <option value="OTHER" {% if expense.category == 'OTHER' %}selected{% endif %}>Other</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="amount" class="form-label">Amount *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="amount" name="amount" value="{{ expense.amount }}" required step="0.01" min="0">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="expense_date" class="form-label">Expense Date *</label>
+                                <input type="date" class="form-control" id="expense_date" name="expense_date" value="{{ expense.expense_date|date:'Y-m-d' }}" required>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="payment_method" class="form-label">Payment Method</label>
+                                <input type="text" class="form-control" id="payment_method" name="payment_method" value="{{ expense.payment_method }}">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="reference_number" class="form-label">Reference Number</label>
+                            <input type="text" class="form-control" id="reference_number" name="reference_number" value="{{ expense.reference_number }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="receipt_image" class="form-label">Receipt Image</label>
+                            {% if expense.receipt_image %}
+                            <div class="mb-2">
+                                <small class="text-muted">Current receipt:</small>
+                                <a href="{{ expense.receipt_image.url }}" target="_blank">View current image</a>
+                            </div>
+                            {% endif %}
+                            <input type="file" class="form-control" id="receipt_image" name="receipt_image" accept="image/*">
+                            <small class="text-muted">Upload a new image to replace the current one (optional)</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3">{{ expense.notes }}</textarea>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'vendor_expense_detail' expense.id %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Update Expense
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

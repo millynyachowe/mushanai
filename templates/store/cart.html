@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+
+{% block title %}Shopping Cart - Mushanai{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 1000px;">
+    <h1 style="font-size: 2rem; color: #000000; margin-bottom: 1rem;">Shopping Cart</h1>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message message-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    
+    {% if cart_items %}
+    <div style="display: grid; gap: 1.5rem;">
+        <div class="card">
+            <div class="card-header">Cart Items</div>
+            <div style="padding: 1.5rem;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #e0e0e0;">
+                            <th style="padding: 1rem; text-align: left;">Product</th>
+                            <th style="padding: 1rem; text-align: center;">Price</th>
+                            <th style="padding: 1rem; text-align: center;">Quantity</th>
+                            <th style="padding: 1rem; text-align: right;">Subtotal</th>
+                            <th style="padding: 1rem; text-align: center;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart_items %}
+                        <tr style="border-bottom: 1px solid #f0f0f0;" id="cart-item-{{ item.id }}">
+                            <td style="padding: 1rem;">
+                                <div style="display: flex; gap: 1rem; align-items: center;">
+                                    {% if item.product.primary_image %}
+                                    <img src="{{ item.product.primary_image.url }}" alt="{{ item.product.name }}" 
+                                         style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px;">
+                                    {% else %}
+                                    <div style="width: 80px; height: 80px; background-color: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #999;">
+                                        No Image
+                                    </div>
+                                    {% endif %}
+                                    <div>
+                                        <a href="{% url 'product_detail' item.product.slug %}" style="color: #000000; text-decoration: none; font-weight: bold;">
+                                            {{ item.product.name }}
+                                        </a>
+                                        <div style="color: #666; font-size: 0.9rem; margin-top: 0.25rem;">
+                                            {% if item.product.has_vendor_account %}
+                                                By: <a href="{% url 'vendor_profile_public' item.product.vendor.id %}" style="color: #be8400;">{{ item.product.vendor_display_name }}</a>
+                                            {% else %}
+                                                By: {{ item.product.vendor_display_name }}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="padding: 1rem; text-align: center;">
+                                ${{ item.product.price|floatformat:2 }}
+                            </td>
+                            <td style="padding: 1rem; text-align: center;">
+                                <form method="post" action="{% url 'update_cart_item' item.id %}" style="display: inline-block;" onsubmit="updateCartItem(event, {{ item.id }}); return false;">
+                                    {% csrf_token %}
+                                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" 
+                                           max="{% if item.product.track_inventory %}{{ item.product.stock_quantity }}{% else %}999{% endif %}"
+                                           style="width: 60px; padding: 0.5rem; border: 2px solid #e0e0e0; border-radius: 4px; text-align: center;"
+                                           onchange="this.form.requestSubmit();">
+                                </form>
+                            </td>
+                            <td style="padding: 1rem; text-align: right; font-weight: bold;">
+                                $<span id="item-subtotal-{{ item.id }}">{{ item.subtotal|floatformat:2 }}</span>
+                            </td>
+                            <td style="padding: 1rem; text-align: center;">
+                                <button onclick="removeFromCart({{ item.id }})" 
+                                        style="background-color: #f44336; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
+                                    Remove
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" style="padding: 1rem; text-align: right; font-weight: bold; font-size: 1.1rem;">
+                                Total:
+                            </td>
+                            <td style="padding: 1rem; text-align: right; font-weight: bold; font-size: 1.2rem; color: #be8400;">
+                                $<span id="cart-total">{{ cart.total|floatformat:2 }}</span>
+                            </td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+            <a href="{% url 'home' %}" class="btn btn-outline" style="padding: 0.75rem 2rem;">Continue Shopping</a>
+            <a href="{% url 'checkout' %}" class="btn btn-primary" style="padding: 0.75rem 2rem;">Proceed to Checkout</a>
+        </div>
+    </div>
+    {% else %}
+    <div class="card" style="text-align: center; padding: 3rem;">
+        <h2 style="color: #666; margin-bottom: 1rem;">Your cart is empty</h2>
+        <p style="color: #999; margin-bottom: 2rem;">Add some products to your cart to get started!</p>
+        <a href="{% url 'home' %}" class="btn btn-primary" style="padding: 0.75rem 2rem;">Browse Products</a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function getCsrfToken() {
+    let csrfToken = '';
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'csrftoken') {
+            csrfToken = value;
+            break;
+        }
+    }
+    return csrfToken;
+}
+
+function removeFromCart(itemId) {
+    if (!confirm('Remove this item from your cart?')) {
+        return;
+    }
+    
+    const csrfToken = getCsrfToken();
+    
+    fetch(`/cart/remove/${itemId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+        },
+        credentials: 'same-origin',
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Remove the row from the table
+            const row = document.getElementById(`cart-item-${itemId}`);
+            if (row) {
+                row.remove();
+            }
+            
+            // Update cart total
+            document.getElementById('cart-total').textContent = parseFloat(data.cart_total).toFixed(2);
+            
+            // If cart is empty, reload page
+            if (data.cart_item_count === 0) {
+                location.reload();
+            }
+        } else {
+            alert(data.error || 'Failed to remove item');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+    });
+}
+
+function updateCartItem(event, itemId) {
+    event.preventDefault();
+    const form = event.target;
+    const quantity = form.querySelector('input[name="quantity"]').value;
+    
+    const csrfToken = getCsrfToken();
+    
+    fetch(`/cart/update/${itemId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        credentials: 'same-origin',
+        body: `quantity=${quantity}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update item subtotal
+            document.getElementById(`item-subtotal-${itemId}`).textContent = parseFloat(data.item_subtotal).toFixed(2);
+            
+            // Update cart total
+            document.getElementById('cart-total').textContent = parseFloat(data.cart_total).toFixed(2);
+        } else {
+            alert(data.error || 'Failed to update quantity');
+            // Reload to get correct quantity
+            location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+        location.reload();
+    });
+}
+</script>
+{% endblock %}
+

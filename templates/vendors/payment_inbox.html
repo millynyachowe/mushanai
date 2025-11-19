@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment Inbox - Mushanai{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 1000px;">
+    <div style="margin-bottom: 2rem;">
+        <h1 style="font-size: 2rem; color: #000000; margin-bottom: 0.5rem;">Payment Inbox</h1>
+        <p style="color: #666; margin-bottom: 1rem;">
+            Review customer payments submitted during checkout. Acknowledge once funds are received.
+        </p>
+        <div style="background-color: #fff3cd; border: 1px solid #ffe699; border-radius: 8px; padding: 1rem; font-size: 0.9rem; color: #856404; margin-bottom: 1.5rem;">
+            <strong>⚠️ Important:</strong> As soon as you receive a payment, acknowledge it by clicking the "Acknowledge Receipt" button. If you have not received the payment, contact the customer using the provided contact information before dispatching the order.
+        </div>
+    </div>
+    
+    {% if submissions %}
+        <div style="display: grid; gap: 1.5rem;">
+            {% for submission in submissions %}
+            <div style="border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; background-color: #fdfdfd;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div>
+                        <h2 style="margin: 0; font-size: 1.25rem; color: #000000;">Order {{ submission.order.order_number }}</h2>
+                        <p style="color: #666; margin: 0.25rem 0 0;">
+                            Customer: {{ submission.order.customer.get_full_name|default:submission.order.customer.username }} <br>
+                            Submitted: {{ submission.submitted_at|date:"M d, Y H:i" }}
+                        </p>
+                    </div>
+                    <div>
+                        {% if submission.status == 'ACKNOWLEDGED' %}
+                        <span style="display: inline-block; background-color: #e8f5e9; color: #2e7d32; padding: 0.4rem 0.8rem; border-radius: 999px; font-weight: 600;">Acknowledged</span>
+                        {% else %}
+                        <span style="display: inline-block; background-color: #fff3cd; color: #856404; padding: 0.4rem 0.8rem; border-radius: 999px; font-weight: 600;">Pending</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                    <div style="background-color: #f8f8f8; padding: 1rem; border-radius: 8px;">
+                        <strong>Payment Method</strong>
+                        <div>{{ submission.get_payment_type_display }}</div>
+                    </div>
+                    <div style="background-color: #f8f8f8; padding: 1rem; border-radius: 8px;">
+                        <strong>Payer Name</strong>
+                        <div>{{ submission.payer_name }}</div>
+                    </div>
+                    <div style="background-color: #f8f8f8; padding: 1rem; border-radius: 8px;">
+                        <strong>Amount</strong>
+                        <div>${{ submission.amount|floatformat:2 }}</div>
+                    </div>
+                    {% if submission.payment_phone %}
+                    <div style="background-color: #f8f8f8; padding: 1rem; border-radius: 8px;">
+                        <strong>Paid To</strong>
+                        <div>{{ submission.payment_phone }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                {% if submission.proof_of_payment %}
+                <div style="margin-bottom: 1rem;">
+                    <strong>Proof of Payment:</strong>
+                    <a href="{{ submission.proof_of_payment.url }}" target="_blank" style="color: #be8400; text-decoration: none; font-weight: 600;">View / Download</a>
+                </div>
+                {% endif %}
+                
+                <div style="background-color: #fff3cd; border: 1px solid #ffe699; border-radius: 8px; padding: 1rem; font-size: 0.9rem; color: #856404; margin-bottom: 1rem;">
+                    <strong>Action required:</strong> Confirm funds in your account. If you have not received the payment, call the customer using the contact provided on the order before proceeding with fulfilment.
+                </div>
+                
+                {% if submission.status != 'ACKNOWLEDGED' %}
+                <form method="post" onsubmit="return confirm('Mark this payment as received?');">
+                    {% csrf_token %}
+                    <input type="hidden" name="submission_id" value="{{ submission.id }}">
+                    <button type="submit" class="btn btn-primary">Acknowledge Receipt</button>
+                </form>
+                {% else %}
+                <p style="color: #2e7d32; font-weight: 600;">Payment acknowledged on {{ submission.acknowledged_at|date:"M d, Y H:i" }}.</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="background-color: #f8f8f8; border-radius: 12px; padding: 2rem; text-align: center; color: #666;">
+            You have no payment submissions yet.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+

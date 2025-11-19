@@ -1,0 +1,286 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment & Delivery Settings - Mushanai{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 900px;">
+    <h1 style="font-size: 2rem; color: #000000; margin-bottom: 1.5rem;">Payment & Delivery Settings</h1>
+    <p style="color: #666; margin-bottom: 2rem;">
+        Configure how customers pay you and how deliveries are handled for your orders.
+    </p>
+    
+    <form method="post">
+        {% csrf_token %}
+        {{ zone_formset.management_form }}
+        
+        <div class="card" style="margin-bottom: 2rem;">
+            <div class="card-header">Payment Methods</div>
+            <div style="padding: 1.5rem;">
+                {% for form in formset %}
+                <div style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; background-color: #f8f8f8;">
+                    <h3 style="margin: 0 0 0.75rem 0; color: #000000;">{{ form.instance.get_payment_type_display }}</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+                        <div>
+                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                {{ form.is_enabled }} <span>Enabled</span>
+                            </label>
+                        </div>
+                        {% if form.fields.phone_number %}
+                        <div>
+                            <label style="display: block; font-weight: bold;">Payment Phone</label>
+                            {{ form.phone_number }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <label style="display: block; font-weight: bold;">Customer Instructions</label>
+                        {{ form.instructions }}
+                        <p style="color: #666; font-size: 0.85rem; margin-top: 0.25rem;">
+                            Provide payment steps or additional notes for customers.
+                        </p>
+                    </div>
+                    {{ form.payment_type }}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="card" style="margin-bottom: 2rem;">
+            <div class="card-header">Business Location * (Required)</div>
+            <div style="padding: 1.5rem;">
+                <p style="color: #666; margin-bottom: 1rem;">
+                    Set your business location on the map. This is required for automatic delivery distance calculation.
+                </p>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-weight: bold; margin-bottom: 0.5rem;">Business Address *</label>
+                    {{ delivery_form.location_address }}
+                    {% if delivery_form.location_address.errors %}
+                        <div style="color: #d32f2f; font-size: 0.9rem; margin-top: 0.25rem;">{{ delivery_form.location_address.errors }}</div>
+                    {% endif %}
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <div id="map" style="width: 100%; height: 400px; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 1rem;"></div>
+                    <small style="color: #666;">Click on the map to set your exact business location.</small>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <label style="display: block; font-weight: bold;">Latitude</label>
+                        {{ delivery_form.location_latitude }}
+                        {% if delivery_form.location_latitude.errors %}
+                            <div style="color: #d32f2f; font-size: 0.9rem; margin-top: 0.25rem;">{{ delivery_form.location_latitude.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label style="display: block; font-weight: bold;">Longitude</label>
+                        {{ delivery_form.location_longitude }}
+                        {% if delivery_form.location_longitude.errors %}
+                            <div style="color: #d32f2f; font-size: 0.9rem; margin-top: 0.25rem;">{{ delivery_form.location_longitude.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                    <div>
+                        <label style="display: block; font-weight: bold;">{{ delivery_form.harare_radius_km.label }}</label>
+                        {{ delivery_form.harare_radius_km }}
+                        <small style="color: #666;">Default 10 km radius.</small>
+                    </div>
+                    <div>
+                        <label style="display: block; font-weight: bold;">{{ delivery_form.harare_within_radius_fee.label }}</label>
+                        {{ delivery_form.harare_within_radius_fee }}
+                        <small style="color: #666;">Fee within the Harare radius.</small>
+                    </div>
+                    <div>
+                        <label style="display: block; font-weight: bold;">{{ delivery_form.harare_beyond_radius_fee.label }}</label>
+                        {{ delivery_form.harare_beyond_radius_fee }}
+                        <small style="color: #666;">Fee for Harare deliveries beyond the radius.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card" style="margin-bottom: 2rem;">
+            <div class="card-header">City Delivery Fees (Optional)</div>
+            <div style="padding: 1.5rem;">
+                <p style="color: #666; margin-bottom: 1rem;">
+                    Set fixed delivery fees for common cities outside Harare. Enable the cities you deliver to and set the fee customers will pay.
+                </p>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background-color: #f8f8f8;">
+                                <th style="text-align: left; padding: 0.75rem;">City</th>
+                                <th style="text-align: left; padding: 0.75rem;">Enable</th>
+                                <th style="text-align: left; padding: 0.75rem;">Delivery Fee (USD)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for form in zone_formset %}
+                            <tr style="border-bottom: 1px solid #e0e0e0;">
+                                <td style="padding: 0.75rem; font-weight: 600;">
+                                    {{ form.instance.get_city_display }}
+                                    {{ form.city }}
+                                </td>
+                                <td style="padding: 0.75rem;">
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        {{ form.is_active }} <span style="color: #666;">Active</span>
+                                    </label>
+                                    {% if form.is_active.errors %}
+                                        <div style="color: #d32f2f; font-size: 0.85rem;">{{ form.is_active.errors }}</div>
+                                    {% endif %}
+                                </td>
+                                <td style="padding: 0.75rem;">
+                                    {{ form.fee }}
+                                    {% if form.fee.errors %}
+                                        <div style="color: #d32f2f; font-size: 0.85rem;">{{ form.fee.errors }}</div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card" style="margin-bottom: 2rem;">
+            <div class="card-header">Delivery & Logistics</div>
+            <div style="padding: 1.5rem;">
+                <p style="color: #666; margin-bottom: 1rem;">
+                    Set up delivery fees. You can offer free delivery within a city or radius, and charge per km beyond that.
+                </p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+                    <div>
+                        <label style="display: block; font-weight: bold;">{{ delivery_form.delivery_free_city.label }}</label>
+                        {{ delivery_form.delivery_free_city }}
+                        <small style="color: #666;">e.g., Harare</small>
+                    </div>
+                    <div>
+                        <label style="display: block; font-weight: bold;">{{ delivery_form.delivery_free_radius_km.label }}</label>
+                        {{ delivery_form.delivery_free_radius_km }}
+                        <small style="color: #666;">Set to 0 if not applicable.</small>
+                    </div>
+                    <div>
+                        <label style="display: block; font-weight: bold;">{{ delivery_form.delivery_base_fee.label }}</label>
+                        {{ delivery_form.delivery_base_fee }}
+                    </div>
+                    <div>
+                        <label style="display: block; font-weight: bold;">{{ delivery_form.delivery_per_km_fee.label }}</label>
+                        {{ delivery_form.delivery_per_km_fee }}
+                        <small style="color: #666;">Extra per km beyond free radius.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Save Settings</button>
+        <a href="{% url 'vendor_dashboard' %}" class="btn btn-outline" style="margin-left: 0.5rem;">Cancel</a>
+    </form>
+</div>
+
+{% if google_maps_api_key %}
+<script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&libraries=places"></script>
+<script>
+let map;
+let marker;
+let geocoder;
+let autocomplete;
+
+function initMap() {
+    // Default to Harare, Zimbabwe if no location set
+    const defaultLocation = { lat: -17.8292, lng: 31.0522 };
+    const vendorLat = {{ vendor_location.latitude|default:"null" }};
+    const vendorLng = {{ vendor_location.longitude|default:"null" }};
+    
+    map = new google.maps.Map(document.getElementById('map'), {
+        center: (vendorLat && vendorLng) ? { lat: vendorLat, lng: vendorLng } : defaultLocation,
+        zoom: (vendorLat && vendorLng) ? 15 : 12,
+    });
+    
+    geocoder = new google.maps.Geocoder();
+    
+    // Initialize autocomplete for address input
+    const addressInput = document.getElementById('id_delivery-location_address');
+    if (addressInput) {
+        autocomplete = new google.maps.places.Autocomplete(addressInput, {
+            componentRestrictions: { country: 'zw' },
+            fields: ['formatted_address', 'geometry']
+        });
+        
+        autocomplete.addListener('place_changed', function() {
+            const place = autocomplete.getPlace();
+            if (place.geometry) {
+                map.setCenter(place.geometry.location);
+                map.setZoom(15);
+                setMarker(place.geometry.location);
+                updateCoordinates(place.geometry.location);
+            }
+        });
+    }
+    
+    // Set initial marker if location exists
+    if (vendorLat && vendorLng) {
+        const location = { lat: vendorLat, lng: vendorLng };
+        setMarker(location);
+    }
+    
+    // Add click listener to map
+    map.addListener('click', function(event) {
+        setMarker(event.latLng);
+        updateCoordinates(event.latLng);
+        reverseGeocode(event.latLng);
+    });
+}
+
+function setMarker(location) {
+    if (marker) {
+        marker.setPosition(location);
+    } else {
+        marker = new google.maps.Marker({
+            position: location,
+            map: map,
+            draggable: true
+        });
+        
+        marker.addListener('dragend', function() {
+            updateCoordinates(marker.getPosition());
+            reverseGeocode(marker.getPosition());
+        });
+    }
+}
+
+function updateCoordinates(location) {
+    const latInput = document.getElementById('id_delivery-location_latitude');
+    const lngInput = document.getElementById('id_delivery-location_longitude');
+    if (latInput) latInput.value = location.lat().toFixed(6);
+    if (lngInput) lngInput.value = location.lng().toFixed(6);
+}
+
+function reverseGeocode(location) {
+    geocoder.geocode({ location: location }, function(results, status) {
+        if (status === 'OK' && results[0]) {
+            const addressInput = document.getElementById('id_delivery-location_address');
+            if (addressInput) {
+                addressInput.value = results[0].formatted_address;
+            }
+        }
+    });
+}
+
+// Initialize map when page loads
+if (typeof google !== 'undefined' && google.maps) {
+    initMap();
+} else {
+    window.addEventListener('load', function() {
+        if (typeof google !== 'undefined' && google.maps) {
+            initMap();
+        }
+    });
+}
+</script>
+{% else %}
+<div style="background-color: #fff3cd; border: 1px solid #ffe699; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; color: #856404;">
+    <strong>⚠️ Google Maps API Key Required:</strong> Please set GOOGLE_MAPS_API_KEY in your environment variables or settings to enable map functionality.
+</div>
+{% endif %}
+{% endblock %}
+

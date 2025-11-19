@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Propose a Project - Mushanai{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 800px;">
+    <h1 style="font-size: 2rem; margin-bottom: 2rem; color: #000000;">Propose a Community Project</h1>
+    
+    <div class="card">
+        <p style="color: #666; margin-bottom: 1.5rem;">
+            Submit a project proposal for community development. All proposals will be reviewed by administrators before being approved and published.
+        </p>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="title">Project Title *</label>
+                <input type="text" id="title" name="title" required placeholder="e.g., Build a Community Library" value="{{ form_data.title }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="short_description">Short Description</label>
+                <input type="text" id="short_description" name="short_description" maxlength="300" placeholder="Brief description (max 300 characters)" value="{{ form_data.short_description }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Full Description *</label>
+                <textarea id="description" name="description" rows="8" required placeholder="Describe the project in detail, its goals, and how it will benefit the community.">{{ form_data.description }}</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="target_amount">Target Funding Amount *</label>
+                <input type="number" id="target_amount" name="target_amount" step="0.01" min="0" required placeholder="0.00" value="{{ form_data.target_amount }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="expense_breakdown">Budget & Expense Breakdown *</label>
+                <textarea id="expense_breakdown" name="expense_breakdown" rows="6" required placeholder="Detail how the funds will be allocated. For example:
+- Materials: $5,000 (cement, bricks, roofing)
+- Labor: $3,000 (skilled workers, volunteers)
+- Equipment rental: $1,200
+- Contingency: $800">
+{{ form_data.expense_breakdown }}</textarea>
+                <p style="color: #666; font-size: 0.85rem; margin-top: 0.5rem;">
+                    Help donors understand where the money goes by itemizing the major costs.
+                </p>
+            </div>
+            
+            <div class="form-group">
+                <label for="timeline">Project Timeline & Milestones *</label>
+                <textarea id="timeline" name="timeline" rows="6" required placeholder="Outline the timeline with major milestones. For example:
+- Month 1: Planning & permits
+- Months 2-3: Construction phase 1
+- Month 4: Construction phase 2
+- Month 5: Finishing & inspections
+- Month 6: Project launch with community event">
+{{ form_data.timeline }}</textarea>
+                <p style="color: #666; font-size: 0.85rem; margin-top: 0.5rem;">
+                    Share the planned schedule so the community can follow along and celebrate key milestones.
+                </p>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Submit Proposal</button>
+        </form>
+        
+        <div style="margin-top: 2rem; padding: 1rem; background-color: #f8f8f8; border-radius: 8px;">
+            <p style="color: #666; font-size: 0.9rem;">
+                <strong>Note:</strong> Your proposal will be reviewed by our admin team. You will be notified once it's been approved or if any changes are needed.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,40 @@
+# Copy this file to .env and update with your values
+# DO NOT commit .env to version control!
+
+# Django Settings
+SECRET_KEY=django-insecure-405ec706td@pxg$8ox#j*1*gzpw9b!_6(8&eum5=ef%1wuhpie
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
+
+# PostgreSQL Database Configuration
+DB_ENGINE=django.db.backends.postgresql
+DB_NAME=mushanai_db
+DB_USER=mushanai_user
+DB_PASSWORD=mushanai2024
+DB_HOST=localhost
+DB_PORT=5432
+
+# Site Configuration
+SITE_URL=http://127.0.0.1:8000
+
+# Email Configuration (Optional)
+EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=your_email@gmail.com
+EMAIL_HOST_PASSWORD=your_email_password
+DEFAULT_FROM_EMAIL=noreply@mushanai.com
+
+# Social Media API Keys (Optional - for social media integration)
+FACEBOOK_APP_ID=your_facebook_app_id
+FACEBOOK_APP_SECRET=your_facebook_app_secret
+
+# Production Security Settings (Uncomment for production)
+# SECURE_SSL_REDIRECT=True
+# SESSION_COOKIE_SECURE=True
+# CSRF_COOKIE_SECURE=True
+# SECURE_HSTS_SECONDS=31536000
+# SECURE_HSTS_INCLUDE_SUBDOMAINS=True
+# SECURE_HSTS_PRELOAD=True
+

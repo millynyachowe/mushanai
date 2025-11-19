@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% block title %}Notifications - Mushanai{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 1200px; margin: 2rem auto; padding: 0 1rem;">
+    <h1 style="font-size: 2.5rem; color: #000000; margin-bottom: 2rem;">Notifications & Alerts</h1>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <div class="card" style="padding: 1.5rem; border: 1px solid #e0e0e0; border-radius: 8px; background-color: #f8f8f8;">
+            <h3 style="font-size: 1.3rem; color: #000000; margin-bottom: 0.5rem;">Back-in-Stock Alerts</h3>
+            <p style="color: #666; font-size: 0.9rem;">Manage alerts for products that are currently out of stock.</p>
+            <a href="#back-in-stock" style="color: #be8400; text-decoration: none; font-weight: bold;">View alerts →</a>
+        </div>
+        <div class="card" style="padding: 1.5rem; border: 1px solid #e0e0e0; border-radius: 8px; background-color: #f8f8f8;">
+            <h3 style="font-size: 1.3rem; color: #000000; margin-bottom: 0.5rem;">Vendor Subscriptions</h3>
+            <p style="color: #666; font-size: 0.9rem;">Follow vendors to receive notifications about new products.</p>
+            <a href="#vendor-subscriptions" style="color: #be8400; text-decoration: none; font-weight: bold;">View subscriptions →</a>
+        </div>
+        <div class="card" style="padding: 1.5rem; border: 1px solid #e0e0e0; border-radius: 8px; background-color: #f8f8f8;">
+            <h3 style="font-size: 1.3rem; color: #000000; margin-bottom: 0.5rem;">Project Notifications</h3>
+            <p style="color: #666; font-size: 0.9rem;">Stay updated on project milestones and progress.</p>
+            <a href="#project-subscriptions" style="color: #be8400; text-decoration: none; font-weight: bold;">View subscriptions →</a>
+        </div>
+        <div class="card" style="padding: 1.5rem; border: 1px solid #e0e0e0; border-radius: 8px; background-color: #f8f8f8;">
+            <h3 style="font-size: 1.3rem; color: #000000; margin-bottom: 0.5rem;">Price Alerts</h3>
+            <p style="color: #666; font-size: 0.9rem;">Manage your price drop alerts for favorite products.</p>
+            <a href="#price-alerts" style="color: #be8400; text-decoration: none; font-weight: bold;">View price alerts →</a>
+        </div>
+    </div>
+    
+    <div style="margin-bottom: 3rem;" id="notifications">
+        <h2 style="font-size: 2rem; color: #000000; margin-bottom: 1rem;">Recent Notifications</h2>
+        {% if notifications %}
+        <div style="display: grid; gap: 1rem;">
+            {% for notification in notifications %}
+            <div class="card" style="padding: 1.5rem; border: 1px solid #e0e0e0; border-radius: 8px; {% if not notification.is_read %}border-left: 4px solid #be8400;{% endif %}">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div>
+                        <h3 style="font-size: 1.2rem; color: #000000; margin-bottom: 0.5rem;">{{ notification.title }}</h3>
+                        <p style="color: #666; margin-bottom: 0.5rem;">{{ notification.message }}</p>
+                        <span style="color: #999; font-size: 0.85rem;">{{ notification.created_at|date:"F d, Y H:i" }}</span>
+                    </div>
+                    {% if not notification.is_read %}
+                    <button onclick="markNotificationRead({{ notification.id }}, this)" class="btn" style="padding: 0.5rem 1rem; background-color: #f8f8f8; color: #000000; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;">Mark as read</button>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="color: #666;">No notifications yet.</p>
+        {% endif %}
+    </div>
+    
+    <div style="margin-bottom: 3rem;" id="back-in-stock">
+        <h2 style="font-size: 2rem; color: #000000; margin-bottom: 1rem;">Back-in-Stock Alerts</h2>
+        {% if back_in_stock_alerts %}
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead style="background-color: #000000; color: white;">
+                <tr>
+                    <th style="padding: 1rem; text-align: left;">Product</th>
+                    <th style="padding: 1rem; text-align: left;">Status</th>
+                    <th style="padding: 1rem; text-align: left;">Created</th>
+                    <th style="padding: 1rem; text-align: left;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for alert in back_in_stock_alerts %}
+                <tr style="border-bottom: 1px solid #e0e0e0;">
+                    <td style="padding: 1rem;"><a href="{% url 'product_detail' alert.product.slug %}" style="color: #be8400; text-decoration: none;">{{ alert.product.name }}</a></td>
+                    <td style="padding: 1rem;">{{ alert.get_status_display }}</td>
+                    <td style="padding: 1rem; color: #666;">{{ alert.created_at|date:"F d, Y" }}</td>
+                    <td style="padding: 1rem;">
+                        {% if alert.status == 'ACTIVE' %}
+                        <form method="post" action="{% url 'cancel_back_in_stock' alert.id %}" onsubmit="return confirm('Cancel this alert?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn" style="padding: 0.5rem 1rem; background-color: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancel</button>
+                        </form>
+                        {% else %}
+                        <span style="color: #999; font-size: 0.9rem;">No action required</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="color: #666;">No back-in-stock alerts yet.</p>
+        {% endif %}
+    </div>
+    
+    <div style="margin-bottom: 3rem;" id="vendor-subscriptions">
+        <h2 style="font-size: 2rem; color: #000000; margin-bottom: 1rem;">Vendor Subscriptions</h2>
+        {% if vendor_subscriptions %}
+        <ul style="list-style: none; padding: 0;">
+            {% for subscription in vendor_subscriptions %}
+            <li style="padding: 1rem; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong>{{ subscription.vendor.username }}</strong>
+                    <div style="color: #666; font-size: 0.9rem;">Notifications: {{ subscription.notify_new_products|yesno:"New products only,Disabled" }}</div>
+                </div>
+                <form method="post" action="{% url 'toggle_vendor_subscription' subscription.vendor.id %}" onsubmit="return confirm('Unfollow this vendor?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn" style="padding: 0.5rem 1rem; background-color: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer;">Unfollow</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p style="color: #666;">You are not following any vendors yet. Follow vendors from their profile pages to receive updates.</p>
+        {% endif %}
+    </div>
+    
+    <div style="margin-bottom: 3rem;" id="project-subscriptions">
+        <h2 style="font-size: 2rem; color: #000000; margin-bottom: 1rem;">Project Notifications</h2>
+        {% if project_subscriptions %}
+        <ul style="list-style: none; padding: 0;">
+            {% for subscription in project_subscriptions %}
+            <li style="padding: 1rem; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong>{{ subscription.project.title }}</strong>
+                    <div style="color: #666; font-size: 0.9rem;">Milestones: {{ subscription.notify_milestones|yesno:"On,Off" }} · Updates: {{ subscription.notify_updates|yesno:"On,Off" }}</div>
+                </div>
+                <form method="post" action="{% url 'toggle_project_notification' subscription.project.id %}" onsubmit="return confirm('Unsubscribe from this project?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn" style="padding: 0.5rem 1rem; background-color: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer;">Unsubscribe</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p style="color: #666;">No project subscriptions yet. Subscribe from a project page to get milestone notifications.</p>
+        {% endif %}
+    </div>
+    
+    <div id="price-alerts">
+        <h2 style="font-size: 2rem; color: #000000; margin-bottom: 1rem;">Price Alerts</h2>
+        {% if price_alerts %}
+        <ul style="list-style: none; padding: 0;">
+            {% for alert in price_alerts %}
+            <li style="padding: 1rem; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong><a href="{% url 'product_detail' alert.product.slug %}" style="color: #be8400; text-decoration: none;">{{ alert.product.name }}</a></strong>
+                    <div style="color: #666; font-size: 0.9rem;">Status: {{ alert.get_status_display }} · Created: {{ alert.created_at|date:"F d, Y" }}</div>
+                </div>
+                <a href="{% url 'price_alerts_list' %}" class="btn" style="padding: 0.5rem 1rem; background-color: #f8f8f8; color: #000000; border: 1px solid #ccc; border-radius: 4px; text-decoration: none;">Manage</a>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p style="color: #666;">No price alerts yet. Create alerts from product pages.</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function markNotificationRead(notificationId, button) {
+    let csrfToken = '';
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'csrftoken') {
+            csrfToken = value;
+            break;
+        }
+    }
+    
+    if (!csrfToken) {
+        alert('Please refresh the page and try again.');
+        return;
+    }
+    
+    fetch(`/customer/notifications/${notificationId}/read/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        credentials: 'same-origin',
+        body: ''
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && button) {
+            const card = button.closest('.card');
+            if (card) {
+                card.style.borderLeft = '4px solid transparent';
+            }
+            button.remove();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+</script>
+{% endblock %}

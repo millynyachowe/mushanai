@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Brand Stories - Mushanai{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="text-align: center; margin: 3rem 0;">
+        <h1 style="font-size: 3rem; color: #000000; margin-bottom: 1rem;">Brand Stories</h1>
+        <p style="font-size: 1.25rem; color: #666666;">Discover the stories behind our local brands</p>
+    </div>
+    
+    {% if brands %}
+    <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));">
+        {% for brand in brands %}
+        <div class="card" style="transition: transform 0.3s, box-shadow 0.3s;">
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                {% if brand.logo %}
+                    <img src="{{ brand.logo.url }}" alt="{{ brand.company_name }}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #e0e0e0;">
+                {% else %}
+                    <div style="width: 80px; height: 80px; background-color: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #999; font-size: 0.8rem;">
+                        No Logo
+                    </div>
+                {% endif %}
+                <div>
+                    <h3 style="font-size: 1.25rem; color: #000000; margin-bottom: 0.25rem;">{{ brand.company_name }}</h3>
+                    {% if brand.business_type %}
+                        <p style="color: #666; font-size: 0.9rem;">{{ brand.business_type }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if brand.description %}
+                <div style="color: #666; line-height: 1.8; margin-top: 1rem;">
+                    {{ brand.description|truncatewords:50 }}
+                </div>
+            {% endif %}
+            
+            {% if brand.business_phone or brand.business_email %}
+                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e0e0e0;">
+                    {% if brand.business_phone %}
+                        <p style="font-size: 0.9rem; color: #666; margin-bottom: 0.25rem;">📞 {{ brand.business_phone }}</p>
+                    {% endif %}
+                    {% if brand.business_email %}
+                        <p style="font-size: 0.9rem; color: #666;">✉️ {{ brand.business_email }}</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card" style="text-align: center; padding: 3rem;">
+        <p style="color: #666;">No brand stories published yet.</p>
+        <p style="color: #666; margin-top: 1rem;">
+            <a href="{% url 'vendor_signup' %}" style="color: #be8400;">Become a vendor</a> and share your brand story!
+        </p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Order Submitted - Mushanai{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 800px;">
+    <div style="background-color: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h1 style="font-size: 2rem; color: #2e7d32; margin-bottom: 0.5rem;">Thank you for your order!</h1>
+        <p style="color: #2e7d32;">Your payment details have been sent to the vendors. They will confirm once they have received the funds.</p>
+    </div>
+    
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">Order Summary</div>
+        <div style="padding: 1.5rem;">
+            <p><strong>Order Number:</strong> {{ order.order_number }}</p>
+            <p><strong>Total:</strong> ${{ order.total|floatformat:2 }}</p>
+            <p><strong>Shipping Address:</strong> {{ order.shipping_address }}, {{ order.shipping_city }}, {{ order.shipping_country }}</p>
+            <p><strong>Contact Phone:</strong> {{ order.shipping_phone }}</p>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">Payment Status</div>
+        <div style="padding: 1.5rem;">
+            {% if payment_submissions %}
+            <ul style="list-style: none; padding: 0;">
+                {% for submission in payment_submissions %}
+                <li style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                    <div style="font-weight: bold; color: #000000; margin-bottom: 0.5rem;">
+                        {% if submission.vendor %}
+                            {{ submission.vendor.get_full_name|default:submission.vendor.username }}
+                        {% else %}
+                            Local Vendor
+                        {% endif %}
+                    </div>
+                    <div style="color: #666; font-size: 0.9rem;">
+                        Payment method: {{ submission.get_payment_type_display }}<br>
+                        Amount: ${{ submission.amount|floatformat:2 }}<br>
+                        Status: {{ submission.get_status_display }}
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p style="color: #666;">No payment submissions recorded.</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div style="margin-top: 2rem;">
+        <a href="{% url 'home' %}" class="btn btn-primary">Continue Shopping</a>
+    </div>
+</div>
+{% endblock %}
+

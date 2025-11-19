@@ -1,0 +1,265 @@
+{% extends 'base.html' %}
+{% load product_tags %}
+
+{% block title %}{{ vendor_profile.company_name }} - Vendor Profile{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="margin-bottom: 3rem;">
+        <!-- Vendor Header -->
+        <div style="display: flex; gap: 2rem; align-items: start; margin-bottom: 2rem;">
+            {% if vendor_profile.logo %}
+            <img src="{{ vendor_profile.logo.url }}" alt="{{ vendor_profile.company_name }}" style="width: 150px; height: 150px; object-fit: cover; border-radius: 8px; border: 3px solid #be8400;">
+            {% else %}
+            <div style="width: 150px; height: 150px; background-color: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 3px solid #be8400;">
+                <span style="color: #999;">No Logo</span>
+            </div>
+            {% endif %}
+            
+            <div style="flex: 1;">
+                <h1 style="font-size: 2.5rem; color: #000000; margin-bottom: 0.5rem;">{{ vendor_profile.company_name }}</h1>
+                <p style="color: #666; font-size: 1.1rem; margin-bottom: 1rem;">@{{ vendor.username }}</p>
+                
+                {% if request.user.is_authenticated and request.user.user_type == 'CUSTOMER' %}
+                <form method="post" action="{% url 'toggle_vendor_subscription' vendor.id %}" style="margin-bottom: 1rem;">
+                    {% csrf_token %}
+                    {% if is_vendor_subscribed %}
+                    <button type="submit" class="btn" style="padding: 0.5rem 1rem; background-color: #e0e0e0; color: #000000; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;">
+                        Unfollow Vendor
+                    </button>
+                    {% else %}
+                    <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">
+                        Follow Vendor for Updates
+                    </button>
+                    {% endif %}
+                </form>
+                {% endif %}
+                
+                <!-- Vendor Rating & Badges -->
+                <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                    {% if vendor_profile.is_verified %}
+                    <span style="display: inline-block; background-color: #be8400; color: white; padding: 0.5rem 1rem; border-radius: 4px; font-size: 0.9rem; font-weight: bold;">✓ Verified Vendor</span>
+                    {% endif %}
+                    
+                    {% if vendor_profile.overall_rating > 0 %}
+                    <div style="display: flex; align-items: center; gap: 0.5rem; background-color: #f8f8f8; padding: 0.5rem 1rem; border-radius: 4px;">
+                        <span style="color: #be8400; font-size: 1.5rem;">⭐</span>
+                        <span style="font-weight: bold; font-size: 1.2rem;">{{ vendor_profile.overall_rating|floatformat:1 }}</span>
+                        <span style="color: #666;">({{ vendor_profile.total_reviews }} review{{ vendor_profile.total_reviews|pluralize }})</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if vendor_profile.average_response_time_hours %}
+                    <div style="display: flex; align-items: center; gap: 0.5rem; color: #666; font-size: 0.9rem;">
+                        <span>⚡</span>
+                        <span>Avg response: {{ vendor_profile.response_time_display }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Vendor Badges -->
+                {% if vendor_profile.badges.exists %}
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem;">
+                    {% for badge in vendor_profile.badges.all %}
+                    <span style="display: inline-block; background-color: {{ badge.color }}; color: white; padding: 0.5rem 1rem; border-radius: 4px; font-size: 0.9rem; font-weight: bold; cursor: help;" title="{{ badge.description }}">
+                        {% if badge.icon %}{{ badge.icon }} {% endif %}{{ badge.name }}
+                    </span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Vendor Description -->
+        {% if vendor_profile.description %}
+        <div style="background-color: #f8f8f8; padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+            <h2 style="font-size: 1.5rem; color: #000000; margin-bottom: 1rem;">About {{ vendor_profile.company_name }}</h2>
+            <p style="color: #333; line-height: 1.8; font-size: 1.1rem;">{{ vendor_profile.description|linebreaks }}</p>
+        </div>
+        {% endif %}
+        
+        {% if share_data %}
+        <div class="social-sharing" style="margin-bottom: 2rem; padding: 1.5rem; background-color: #f8f8f8; border-radius: 8px;">
+            <h3 style="margin-bottom: 1rem; color: #000000; font-size: 1.1rem;">Share this vendor</h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                <a href="{{ share_data.facebook }}" target="_blank" rel="noopener noreferrer" 
+                   class="social-share-btn" data-platform="FACEBOOK" data-share-type="VENDOR" data-object-id="{{ vendor.id }}"
+                   style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #1877f2; color: white; text-decoration: none; border-radius: 4px; font-size: 0.9rem;">
+                    <span>📘</span> Facebook
+                </a>
+                <a href="{{ share_data.twitter }}" target="_blank" rel="noopener noreferrer"
+                   class="social-share-btn" data-platform="TWITTER" data-share-type="VENDOR" data-object-id="{{ vendor.id }}"
+                   style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #1da1f2; color: white; text-decoration: none; border-radius: 4px; font-size: 0.9rem;">
+                    <span>🐦</span> Twitter
+                </a>
+                <a href="{{ share_data.whatsapp }}" target="_blank" rel="noopener noreferrer"
+                   class="social-share-btn" data-platform="WHATSAPP" data-share-type="VENDOR" data-object-id="{{ vendor.id }}"
+                   style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #25d366; color: white; text-decoration: none; border-radius: 4px; font-size: 0.9rem;">
+                    <span>💬</span> WhatsApp
+                </a>
+                <a href="{{ share_data.linkedin }}" target="_blank" rel="noopener noreferrer"
+                   class="social-share-btn" data-platform="LINKEDIN" data-share-type="VENDOR" data-object-id="{{ vendor.id }}"
+                   style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #0077b5; color: white; text-decoration: none; border-radius: 4px; font-size: 0.9rem;">
+                    <span>💼</span> LinkedIn
+                </a>
+                <a href="{{ share_data.email }}" 
+                   class="social-share-btn" data-platform="EMAIL" data-share-type="VENDOR" data-object-id="{{ vendor.id }}"
+                   style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #666; color: white; text-decoration: none; border-radius: 4px; font-size: 0.9rem;">
+                    <span>✉️</span> Email
+                </a>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Vendor Stats -->
+        <div class="stats-grid" style="margin-bottom: 2rem;">
+            <div class="stat-card">
+                <div class="stat-card-value">{{ products.count }}</div>
+                <div class="stat-card-label">Products</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-value">{{ vendor_profile.total_reviews }}</div>
+                <div class="stat-card-label">Reviews</div>
+            </div>
+            {% if vendor_profile.overall_rating > 0 %}
+            <div class="stat-card">
+                <div class="stat-card-value">{{ vendor_profile.overall_rating|floatformat:1 }}</div>
+                <div class="stat-card-label">Rating</div>
+            </div>
+            {% endif %}
+            {% if vendor_profile.average_response_time_hours %}
+            <div class="stat-card">
+                <div class="stat-card-value">{{ vendor_profile.response_time_display }}</div>
+                <div class="stat-card-label">Response Time</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Vendor Products -->
+    <div style="margin-bottom: 3rem;">
+        <h2 style="font-size: 2rem; color: #000000; margin-bottom: 1.5rem; border-bottom: 3px solid #be8400; padding-bottom: 0.5rem;">
+            Products from {{ vendor_profile.company_name }}
+        </h2>
+        {% if products %}
+        <div class="grid">
+            {% for product in products %}
+            <div class="product-card">
+                <a href="{% url 'product_detail' product.slug %}" style="text-decoration: none; color: inherit;">
+                    {% if product.primary_image %}
+                        <img src="{{ product.primary_image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                        <div style="width: 100%; height: 200px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #999;">
+                            No Image
+                        </div>
+                    {% endif %}
+                    <div class="product-card-body">
+                        <div class="product-card-title">{{ product.name }}</div>
+                        {% if product.avg_rating %}
+                            <div style="margin: 0.5rem 0; font-size: 0.9rem;">
+                                <span style="color: #be8400;">{{ product.avg_rating|stars }}</span>
+                                <span style="color: #666; margin-left: 0.5rem;">{{ product.avg_rating|floatformat:1 }} ({{ product.review_count }})</span>
+                            </div>
+                        {% endif %}
+                        <div class="product-card-price">${{ product.price }}</div>
+                        {% if product.is_made_from_local_materials %}
+                            <span style="display: inline-block; background-color: #be8400; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-top: 0.5rem;">Local Materials</span>
+                        {% endif %}
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="text-align: center; color: #666; padding: 2rem;">No products available yet.</p>
+        {% endif %}
+    </div>
+    
+    <!-- Customer Testimonials -->
+    {% if testimonials %}
+    <div style="margin-bottom: 3rem;">
+        <h2 style="font-size: 2rem; color: #000000; margin-bottom: 1.5rem; border-bottom: 3px solid #be8400; padding-bottom: 0.5rem;">
+            Customer Testimonials
+        </h2>
+        {% for testimonial in testimonials %}
+        <div class="card" style="margin-bottom: 1rem; padding: 1.5rem; {% if testimonial.is_featured %}border: 2px solid #be8400;{% endif %}">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                <div>
+                    <h4 style="margin-bottom: 0.5rem; color: #000000;">
+                        {% if testimonial.title %}{{ testimonial.title }}{% else %}Testimonial{% endif %}
+                    </h4>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <span style="color: #be8400;">{{ testimonial.rating|stars }}</span>
+                        <span style="color: #666; font-size: 0.9rem;">
+                            by {{ testimonial.display_name|default:testimonial.customer.username }}
+                        </span>
+                        {% if testimonial.is_verified_purchase %}
+                        <span style="background-color: #be8400; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">✓ Verified Purchase</span>
+                        {% endif %}
+                        {% if testimonial.is_featured %}
+                        <span style="background-color: #be8400; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">⭐ Featured</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div style="color: #666; font-size: 0.9rem;">{{ testimonial.created_at|date:"F d, Y" }}</div>
+            </div>
+            <p style="color: #333; margin: 0.5rem 0; line-height: 1.6;">{{ testimonial.testimonial|linebreaks }}</p>
+        </div>
+        {% endfor %}
+        {% if request.user.is_authenticated and request.user.user_type == 'CUSTOMER' %}
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="{% url 'submit_testimonial' vendor.id %}" class="btn btn-primary" style="padding: 0.75rem 2rem;">
+                Write a Testimonial
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    {% elif request.user.is_authenticated and request.user.user_type == 'CUSTOMER' %}
+    <div style="margin-bottom: 3rem; text-align: center; padding: 2rem; background-color: #f8f8f8; border-radius: 8px;">
+        <h3 style="margin-bottom: 1rem; color: #000000;">Be the first to leave a testimonial!</h3>
+        <a href="{% url 'submit_testimonial' vendor.id %}" class="btn btn-primary" style="padding: 0.75rem 2rem;">
+            Write a Testimonial
+        </a>
+    </div>
+    {% endif %}
+    
+    <!-- Recent Reviews -->
+    {% if reviews %}
+    <div style="margin-bottom: 3rem;">
+        <h2 style="font-size: 2rem; color: #000000; margin-bottom: 1.5rem; border-bottom: 3px solid #be8400; padding-bottom: 0.5rem;">
+            Recent Reviews
+        </h2>
+        {% for review in reviews %}
+        <div class="card" style="margin-bottom: 1rem; padding: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                <div>
+                    <h4 style="margin-bottom: 0.5rem; color: #000000;">
+                        <a href="{% url 'product_detail' review.product.slug %}" style="color: #be8400; text-decoration: none;">{{ review.product.name }}</a>
+                    </h4>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <span style="color: #be8400;">{{ review.rating|stars }}</span>
+                        <span style="color: #666; font-size: 0.9rem;">by {{ review.customer.username }}</span>
+                        {% if review.is_verified_purchase %}
+                        <span style="background-color: #be8400; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">✓ Verified</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div style="color: #666; font-size: 0.9rem;">{{ review.created_at|date:"F d, Y" }}</div>
+            </div>
+            {% if review.title %}
+            <h5 style="margin: 0.5rem 0; color: #000000;">{{ review.title }}</h5>
+            {% endif %}
+            <p style="color: #333; margin: 0.5rem 0; line-height: 1.6;">{{ review.comment|truncatewords:50 }}</p>
+            {% if review.vendor_response %}
+            <div style="background-color: #f8f8f8; border-left: 4px solid #be8400; padding: 1rem; margin-top: 1rem; border-radius: 4px;">
+                <div style="font-weight: bold; color: #000000; margin-bottom: 0.5rem;">Vendor Response</div>
+                <p style="color: #333; margin: 0; line-height: 1.6;">{{ review.vendor_response|truncatewords:30 }}</p>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

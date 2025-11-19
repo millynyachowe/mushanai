@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Receipt {{ receipt.receipt_number }} - {{ vendor_profile.company_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <a href="{% url 'vendor_receipts_list' %}" class="btn btn-outline-secondary mb-3">
+                <i class="fas fa-arrow-left"></i> Back to Receipts
+            </a>
+            
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="fas fa-receipt"></i> Receipt Details</h2>
+                <div>
+                    <a href="?print=1" target="_blank" class="btn btn-primary">
+                        <i class="fas fa-print"></i> Print
+                    </a>
+                    <button onclick="window.print()" class="btn btn-secondary">
+                        <i class="fas fa-download"></i> Save as PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Receipt Card -->
+    <div class="card shadow-sm">
+        <div class="card-body" id="receipt-content">
+            <!-- Header -->
+            <div class="text-center mb-4">
+                {% if vendor_profile.logo %}
+                <img src="{{ vendor_profile.logo.url }}" alt="{{ vendor_profile.company_name }}" style="max-height: 80px;">
+                {% endif %}
+                <h3 class="mb-1">{{ vendor_profile.company_name }}</h3>
+                {% if vendor_profile.business_address %}
+                <p class="text-muted mb-0">{{ vendor_profile.business_address }}</p>
+                {% endif %}
+                {% if vendor_profile.business_phone %}
+                <p class="text-muted mb-0">Phone: {{ vendor_profile.business_phone }}</p>
+                {% endif %}
+                {% if vendor_profile.business_email %}
+                <p class="text-muted mb-0">Email: {{ vendor_profile.business_email }}</p>
+                {% endif %}
+            </div>
+
+            <hr>
+
+            <!-- Receipt Info -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5>Receipt Information</h5>
+                    <p class="mb-1"><strong>Receipt #:</strong> {{ receipt.receipt_number }}</p>
+                    <p class="mb-1"><strong>Date:</strong> {{ receipt.sale_date|date:"F d, Y g:i A" }}</p>
+                    <p class="mb-1"><strong>Payment Method:</strong> {{ receipt.get_payment_method_display }}</p>
+                    {% if receipt.company %}
+                    <p class="mb-1"><strong>Company:</strong> {{ receipt.company.name }}</p>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <h5>Customer Information</h5>
+                    <p class="mb-1"><strong>Name:</strong> {{ receipt.customer_name }}</p>
+                    {% if receipt.customer_phone %}
+                    <p class="mb-1"><strong>Phone:</strong> {{ receipt.customer_phone }}</p>
+                    {% endif %}
+                    {% if receipt.customer_email %}
+                    <p class="mb-1"><strong>Email:</strong> {{ receipt.customer_email }}</p>
+                    {% endif %}
+                    {% if receipt.is_walk_in %}
+                    <span class="badge bg-info">Walk-in Customer</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Items Table -->
+            <div class="table-responsive mb-4">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Item</th>
+                            <th class="text-center">Quantity</th>
+                            <th class="text-end">Unit Price</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in receipt.items.all %}
+                        <tr>
+                            <td>
+                                {{ item.product_name }}
+                                {% if item.product_sku %}
+                                <br><small class="text-muted">SKU: {{ item.product_sku }}</small>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">{{ item.quantity }}</td>
+                            <td class="text-end">${{ item.unit_price }}</td>
+                            <td class="text-end">${{ item.line_total }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-end"><strong>Subtotal:</strong></td>
+                            <td class="text-end"><strong>${{ receipt.subtotal }}</strong></td>
+                        </tr>
+                        {% if receipt.tax_amount > 0 %}
+                        <tr>
+                            <td colspan="3" class="text-end">Tax:</td>
+                            <td class="text-end">${{ receipt.tax_amount }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if receipt.discount_amount > 0 %}
+                        <tr>
+                            <td colspan="3" class="text-end">Discount:</td>
+                            <td class="text-end">-${{ receipt.discount_amount }}</td>
+                        </tr>
+                        {% endif %}
+                        <tr class="table-success">
+                            <td colspan="3" class="text-end"><strong>Total Amount:</strong></td>
+                            <td class="text-end"><strong>${{ receipt.total_amount }}</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- Notes -->
+            {% if receipt.notes %}
+            <div class="mb-4">
+                <h6>Notes:</h6>
+                <p class="text-muted">{{ receipt.notes }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Footer -->
+            <div class="text-center mt-5 pt-4 border-top">
+                <p class="mb-0"><strong>Thank you for your business!</strong></p>
+                <p class="text-muted mb-0">Please keep this receipt for your records</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    .btn, .card { box-shadow: none !important; border: none; }
+    .btn { display: none; }
+}
+</style>
+{% endblock %}
+

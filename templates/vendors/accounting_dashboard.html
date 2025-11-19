@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Accounting Dashboard - {{ request.user.vendor_profile.company_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2><i class="fas fa-calculator"></i> Accounting Dashboard</h2>
+            <p class="text-muted">Manage your finances and track expenses</p>
+        </div>
+    </div>
+
+    <!-- Financial Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-success">
+                <div class="card-body text-center">
+                    <i class="fas fa-dollar-sign fa-2x text-success mb-2"></i>
+                    <h6 class="text-muted mb-1">Revenue This Month</h6>
+                    <h3 class="mb-0 text-success">${{ revenue_this_month|floatformat:2 }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-danger">
+                <div class="card-body text-center">
+                    <i class="fas fa-receipt fa-2x text-danger mb-2"></i>
+                    <h6 class="text-muted mb-1">Expenses This Month</h6>
+                    <h3 class="mb-0 text-danger">${{ expenses_this_month|floatformat:2 }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-primary">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-line fa-2x text-primary mb-2"></i>
+                    <h6 class="text-muted mb-1">Profit This Month</h6>
+                    <h3 class="mb-0 {% if profit_this_month >= 0 %}text-primary{% else %}text-danger{% endif %}">
+                        ${{ profit_this_month|floatformat:2 }}
+                    </h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-warning">
+                <div class="card-body text-center">
+                    <i class="fas fa-file-invoice-dollar fa-2x text-warning mb-2"></i>
+                    <h6 class="text-muted mb-1">Outstanding Invoices</h6>
+                    <h3 class="mb-0 text-warning">${{ outstanding_invoices|floatformat:2 }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-bolt"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'vendor_pos' %}" class="btn btn-success w-100">
+                                <i class="fas fa-cash-register"></i> New Sale
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'vendor_expense_create' %}" class="btn btn-danger w-100">
+                                <i class="fas fa-receipt"></i> Record Expense
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'vendor_receipts_list' %}" class="btn btn-info w-100">
+                                <i class="fas fa-file-invoice"></i> View Receipts
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'vendor_expenses_list' %}" class="btn btn-warning w-100">
+                                <i class="fas fa-list"></i> View Expenses
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Recent Receipts -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-file-invoice"></i> Recent Sales</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Receipt #</th>
+                                    <th>Customer</th>
+                                    <th>Date</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for receipt in recent_receipts %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'vendor_receipt_detail' receipt.id %}">
+                                            {{ receipt.receipt_number }}
+                                        </a>
+                                    </td>
+                                    <td>{{ receipt.customer_name|truncatewords:2 }}</td>
+                                    <td>{{ receipt.sale_date|date:"M d" }}</td>
+                                    <td class="text-end text-success fw-bold">${{ receipt.total_amount }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">No recent sales</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-end">
+                        <a href="{% url 'vendor_receipts_list' %}" class="btn btn-sm btn-outline-success">
+                            View All <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Expenses -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="fas fa-receipt"></i> Recent Expenses</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Description</th>
+                                    <th>Category</th>
+                                    <th>Date</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for expense in recent_expenses %}
+                                <tr>
+                                    <td>{{ expense.description|truncatewords:3 }}</td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ expense.get_category_display }}</span>
+                                    </td>
+                                    <td>{{ expense.expense_date|date:"M d" }}</td>
+                                    <td class="text-end text-danger fw-bold">${{ expense.amount }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">No recent expenses</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-end">
+                        <a href="{% url 'vendor_expenses_list' %}" class="btn btn-sm btn-outline-danger">
+                            View All <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

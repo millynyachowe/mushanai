@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ project.title }} - Mushanai{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 1000px;">
+    <div style="margin-bottom: 2rem;">
+        <a href="{% url 'project_list' %}" style="color: #be8400; text-decoration: none;">← Back to Projects</a>
+    </div>
+    
+    <div style="margin-bottom: 2rem;">
+        {% if project.image %}
+            <img src="{{ project.image.url }}" alt="{{ project.title }}" style="width: 100%; height: 400px; object-fit: cover; border-radius: 8px; margin-bottom: 2rem;">
+        {% endif %}
+        
+        <h1 style="font-size: 2.5rem; color: #000000; margin-bottom: 1rem;">{{ project.title }}</h1>
+        
+        <div style="margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                <span style="color: #666; font-size: 1.1rem;">Progress</span>
+                <span style="font-weight: bold; color: #be8400; font-size: 1.2rem;">{{ funding_percentage|floatformat:1 }}%</span>
+            </div>
+            <div style="width: 100%; height: 12px; background-color: #e0e0e0; border-radius: 6px; overflow: hidden;">
+                <div style="width: {{ funding_percentage }}%; height: 100%; background-color: #be8400; transition: width 0.3s;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 1rem;">
+                <span style="color: #666;">${{ project.current_funding|floatformat:2 }} raised</span>
+                <span style="color: #666;">${{ project.target_amount|floatformat:2 }} goal</span>
+            </div>
+        </div>
+        
+        {% if request.user.is_authenticated and request.user.user_type == 'CUSTOMER' %}
+        <form method="post" action="{% url 'toggle_project_notification' project.id %}" style="margin: 1rem 0;">
+            {% csrf_token %}
+            {% if project_subscription %}
+            <button type="submit" class="btn" style="padding: 0.75rem 1.5rem; background-color: #e0e0e0; color: #000000; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;">
+                Unsubscribe from milestone notifications
+            </button>
+            {% else %}
+            <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.5rem;">
+                Notify me about milestones
+            </button>
+            {% endif %}
+        </form>
+        {% endif %}
+        
+        <div style="margin: 2rem 0; padding: 1.5rem; background-color: #f8f8f8; border-radius: 8px;">
+            <h3 style="margin-bottom: 1rem; color: #000000;">Description</h3>
+            <p style="color: #666; line-height: 1.8; white-space: pre-wrap;">{{ project.description }}</p>
+        </div>
+        
+        {% if share_data %}
+        <div class="social-sharing" style="margin: 2rem 0; padding: 1.5rem; background-color: #f8f8f8; border-radius: 8px;">
+            <h3 style="margin-bottom: 1rem; color: #000000; font-size: 1.1rem;">Share this project</h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                <a href="{{ share_data.facebook }}" target="_blank" rel="noopener noreferrer" 
+                   class="social-share-btn" data-platform="FACEBOOK" data-share-type="PROJECT" data-object-id="{{ project.id }}"
+                   style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #1877f2; color: white; text-decoration: none; border-radius: 4px; font-size: 0.9rem;">
+                    <span>📘</span> Facebook
+                </a>
+                <a href="{{ share_data.twitter }}" target="_blank" rel="noopener noreferrer"
+                   class="social-share-btn" data-platform="TWITTER" data-share-type="PROJECT" data-object-id="{{ project.id }}"
+                   style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #1da1f2; color: white; text-decoration: none; border-radius: 4px; font-size: 0.9rem;">
+                    <span>🐦</span> Twitter
+                </a>
+                <a href="{{ share_data.whatsapp }}" target="_blank" rel="noopener noreferrer"
+                   class="social-share-btn" data-platform="WHATSAPP" data-share-type="PROJECT" data-object-id="{{ project.id }}"
+                   style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #25d366; color: white; text-decoration: none; border-radius: 4px; font-size: 0.9rem;">
+                    <span>💬</span> WhatsApp
+                </a>
+                <a href="{{ share_data.linkedin }}" target="_blank" rel="noopener noreferrer"
+                   class="social-share-btn" data-platform="LINKEDIN" data-share-type="PROJECT" data-object-id="{{ project.id }}"
+                   style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #0077b5; color: white; text-decoration: none; border-radius: 4px; font-size: 0.9rem;">
+                    <span>💼</span> LinkedIn
+                </a>
+                <a href="{{ share_data.email }}" 
+                   class="social-share-btn" data-platform="EMAIL" data-share-type="PROJECT" data-object-id="{{ project.id }}"
+                   style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #666; color: white; text-decoration: none; border-radius: 4px; font-size: 0.9rem;">
+                    <span>✉️</span> Email
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    {% if milestones %}
+    <div class="card">
+        <div class="card-header">Project Milestones</div>
+        <div style="margin-top: 1rem;">
+            {% for milestone in milestones %}
+            <div style="display: flex; align-items: start; gap: 1rem; padding: 1rem; border-bottom: 1px solid #e0e0e0;">
+                <div style="width: 30px; height: 30px; border-radius: 50%; background-color: {% if milestone.is_completed %}#be8400{% else %}#e0e0e0{% endif %}; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; flex-shrink: 0;">
+                    {% if milestone.is_completed %}✓{% else %}{{ milestone.order }}{% endif %}
+                </div>
+                <div style="flex: 1;">
+                    <h4 style="margin-bottom: 0.5rem; color: #000000;">{{ milestone.title }}</h4>
+                    {% if milestone.description %}
+                        <p style="color: #666; margin-bottom: 0.5rem;">{{ milestone.description }}</p>
+                    {% endif %}
+                    <div style="font-size: 0.9rem; color: #666;">
+                        {% if milestone.is_completed %}
+                            <span style="color: green;">Completed on {{ milestone.completed_date|date:"F d, Y" }}</span>
+                        {% elif milestone.target_date %}
+                            <span>Target: {{ milestone.target_date|date:"F d, Y" }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

@@ -1,0 +1,613 @@
+{% extends 'base.html' %}
+{% load product_tags %}
+
+{% block title %}Home - Mushanai{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        position: relative;
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f5f5f0 0%, #e8e8e0 100%);
+        padding: 4rem 2rem;
+        text-align: center;
+        overflow: hidden;
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        max-width: 800px;
+        animation: fadeInUp 1s ease-out;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .hero-headline {
+        font-size: 3.5rem;
+        font-weight: 300;
+        color: #000000;
+        margin-bottom: 1rem;
+        letter-spacing: -0.5px;
+        line-height: 1.2;
+    }
+    
+    .hero-subheadline {
+        font-size: 1.3rem;
+        color: #666;
+        margin-bottom: 2.5rem;
+        line-height: 1.6;
+        font-weight: 300;
+    }
+    
+    .hero-cta {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .section-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: 300;
+        color: #000000;
+        margin-bottom: 0.75rem;
+        letter-spacing: -0.5px;
+    }
+    
+    .section-subtitle {
+        font-size: 1.1rem;
+        color: #666;
+        font-weight: 300;
+        font-style: italic;
+    }
+    
+    .category-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        margin: 3rem 0;
+    }
+    
+    .category-card {
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+    
+    .category-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        border-color: #be8400;
+    }
+    
+    .category-card-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        background: linear-gradient(135deg, #f5f5f0 0%, #e8e8e0 100%);
+    }
+    
+    .category-card-content {
+        padding: 1.5rem;
+    }
+    
+    .category-card-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #000000;
+        margin-bottom: 0.5rem;
+    }
+    
+    .category-card-count {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .impact-section {
+        background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+        color: #ffffff;
+        padding: 4rem 2rem;
+        margin: 4rem 0;
+    }
+    
+    .impact-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+        align-items: center;
+    }
+    
+    .impact-text h2 {
+        font-size: 2.5rem;
+        font-weight: 300;
+        margin-bottom: 1rem;
+        color: #be8400;
+    }
+    
+    .impact-text p {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #e0e0e0;
+        margin-bottom: 1.5rem;
+    }
+    
+    .vendor-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        margin: 3rem 0;
+    }
+    
+    .vendor-card {
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+    
+    .vendor-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        border-color: #be8400;
+    }
+    
+    .vendor-logo {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin: 0 auto 1rem;
+        background: #f5f5f0;
+    }
+    
+    .testimonial-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin: 3rem 0;
+    }
+    
+    .testimonial-card {
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 2rem;
+        border-left: 4px solid #be8400;
+    }
+    
+    .testimonial-text {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #333;
+        margin-bottom: 1.5rem;
+        font-style: italic;
+    }
+    
+    .testimonial-author {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .testimonial-author-name {
+        font-weight: 600;
+        color: #000000;
+    }
+    
+    .newsletter-section {
+        background: linear-gradient(135deg, #f5f5f0 0%, #e8e8e0 100%);
+        padding: 4rem 2rem;
+        text-align: center;
+        margin: 4rem 0;
+    }
+    
+    .newsletter-form {
+        max-width: 500px;
+        margin: 2rem auto 0;
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .newsletter-form input {
+        flex: 1;
+        padding: 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+    
+    .newsletter-form input:focus {
+        outline: none;
+        border-color: #be8400;
+    }
+    
+    @media (max-width: 768px) {
+        .hero-headline {
+            font-size: 2.5rem;
+        }
+        
+        .hero-subheadline {
+            font-size: 1.1rem;
+        }
+        
+        .impact-content {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-headline">Local Luxury, Crafted with Purpose.</h1>
+        <p class="hero-subheadline">
+            Discover premium pieces from Zimbabwe's finest creators — and give 1% of every purchase back to our community.
+        </p>
+        <div class="hero-cta">
+            <a href="#collections" class="btn btn-primary" style="padding: 1rem 2.5rem; font-size: 1.1rem; font-weight: 600;">
+                Shop Collections
+            </a>
+            <a href="{% url 'brand_stories' %}" class="btn btn-outline" style="padding: 1rem 2.5rem; font-size: 1.1rem; font-weight: 600;">
+                Explore Our Story
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Premium Picks Section -->
+{% if premium_products %}
+<section style="padding: 4rem 2rem; background-color: #ffffff;">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">✨ Premium Picks – Locally Crafted Excellence</h2>
+        </div>
+        <div class="grid">
+            {% for product in premium_products %}
+            <a href="{% url 'product_detail' product.slug %}" style="text-decoration: none; color: inherit;">
+            <div class="product-card" style="position: relative; cursor: pointer; transition: transform 0.2s;">
+                {% if product.is_featured %}
+                <span style="position: absolute; top: 10px; right: 10px; background-color: #be8400; color: white; padding: 0.4rem 0.8rem; border-radius: 4px; font-size: 0.75rem; font-weight: bold; z-index: 2;">
+                    Exclusive
+                </span>
+                {% endif %}
+                {% if product.primary_image %}
+                    <img src="{{ product.primary_image.url }}" alt="{{ product.name }}">
+                {% else %}
+                    <div style="width: 100%; height: 200px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #999;">
+                        No Image
+                    </div>
+                {% endif %}
+                <div class="product-card-body">
+                    <div class="product-card-title">{{ product.name }}</div>
+                    <div class="product-card-vendor">
+                        By:
+                        {% if product.has_vendor_account %}
+                            <a href="{% url 'vendor_profile_public' product.vendor.id %}" style="color: #be8400; text-decoration: none;">{{ product.vendor_display_name }}</a>
+                        {% else %}
+                            {{ product.vendor_display_name }}
+                        {% endif %}
+                    </div>
+                    {% if product.avg_rating %}
+                        <div style="margin: 0.5rem 0; font-size: 0.9rem;">
+                            <span style="color: #be8400;">{{ product.avg_rating|stars }}</span>
+                            <span style="color: #666; margin-left: 0.5rem;">{{ product.avg_rating|floatformat:1 }} ({{ product.review_total }})</span>
+                        </div>
+                    {% endif %}
+                    <div class="product-card-price">${{ product.price }}</div>
+                </div>
+            </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Shop by Category -->
+{% if all_categories %}
+<section style="padding: 4rem 2rem; background-color: #f8f8f8;">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Shop the Way You Live.</h2>
+            <p class="section-subtitle">From timeless essentials to one-of-a-kind treasures — all made by local hands.</p>
+        </div>
+        <div class="category-grid">
+            {% for category in all_categories %}
+            <a href="{% url 'product_search' %}?category={{ category.id }}" class="category-card">
+                {% if category.image %}
+                <img src="{{ category.image.url }}" alt="{{ category.name }}" class="category-card-image">
+                {% else %}
+                <div class="category-card-image" style="display: flex; align-items: center; justify-content: center; color: #999;">
+                    {{ category.name }}
+                </div>
+                {% endif %}
+                <div class="category-card-content">
+                    <h3 class="category-card-title">{{ category.display_header|default:category.name }}</h3>
+                    {% if category.display_tagline %}
+                    <p style="color: #666; font-size: 0.95rem; margin-bottom: 0.5rem;">{{ category.display_tagline }}</p>
+                    {% endif %}
+                    <p class="category-card-count">{{ category.product_count }} product{{ category.product_count|pluralize }}</p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        </div>
+    </section>
+    {% endif %}
+    
+<!-- Category Sections (Scheduled) -->
+{% if category_sections %}
+<section id="collections" style="padding: 4rem 2rem; background-color: #ffffff;">
+    <div class="container">
+        {% for section in category_sections %}
+        <div style="margin-bottom: 5rem;">
+            <div class="section-header">
+                <h2 class="section-title">{{ section.header }}</h2>
+                {% if section.tagline %}
+                <p class="section-subtitle">{{ section.tagline }}</p>
+                {% endif %}
+            </div>
+            
+        <div class="grid">
+                {% for product in section.products %}
+                <a href="{% url 'product_detail' product.slug %}" style="text-decoration: none; color: inherit;">
+                <div class="product-card" style="cursor: pointer; transition: transform 0.2s;">
+                {% if product.primary_image %}
+                    <img src="{{ product.primary_image.url }}" alt="{{ product.name }}">
+                {% else %}
+                    <div style="width: 100%; height: 200px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #999;">
+                        No Image
+                    </div>
+                {% endif %}
+                <div class="product-card-body">
+                    <div class="product-card-title">{{ product.name }}</div>
+                        <div class="product-card-vendor">
+                            By:
+                            {% if product.has_vendor_account %}
+                                <a href="{% url 'vendor_profile_public' product.vendor.id %}" style="color: #be8400; text-decoration: none;">{{ product.vendor_display_name }}</a>
+                            {% else %}
+                                {{ product.vendor_display_name }}
+                            {% endif %}
+                        </div>
+                        {% if product.avg_rating %}
+                            <div style="margin: 0.5rem 0; font-size: 0.9rem;">
+                                <span style="color: #be8400;">{{ product.avg_rating|stars }}</span>
+                                <span style="color: #666; margin-left: 0.5rem;">{{ product.avg_rating|floatformat:1 }} ({{ product.review_total }})</span>
+                        </div>
+                    {% endif %}
+                    {% if product.short_description %}
+                        <p style="font-size: 0.9rem; color: #666; margin: 0.5rem 0;">{{ product.short_description|truncatewords:15 }}</p>
+                    {% endif %}
+                    <div class="product-card-price">${{ product.price }}</div>
+                    {% if product.is_made_from_local_materials %}
+                        <span style="display: inline-block; background-color: #be8400; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-top: 0.5rem;">Local Materials</span>
+                    {% endif %}
+                        {% if product.tags.exists %}
+                            <div style="margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.25rem;">
+                                {% for tag in product.tags.all|slice:":3" %}
+                                <span style="display: inline-block; background-color: {{ tag.color }}; color: white; padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.75rem;">
+                                    {{ tag.name }}
+                                </span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                </a>
+                {% endfor %}
+            </div>
+            
+            {% if section.products|length >= 12 %}
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="{% url 'product_search' %}?category={{ section.category.id }}" class="btn btn-outline" style="padding: 0.75rem 2rem;">
+                    View All {{ section.category.name }}
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Community Impact Section -->
+{% if active_projects %}
+<section class="impact-section">
+    <div class="impact-content">
+        <div class="impact-text">
+            <h2>Together, We Build.</h2>
+            <p>
+                For every sale, Mushanai gives 1% to community-building projects — supporting education, skills training, and sustainability across Zimbabwe.
+            </p>
+            <a href="{% url 'project_list' %}" class="btn btn-primary" style="background-color: #be8400; color: white; padding: 0.75rem 2rem;">
+                See Projects →
+            </a>
+        </div>
+        <div>
+            {% for project in active_projects %}
+            <div style="background-color: rgba(255,255,255,0.1); border-radius: 8px; padding: 2rem;">
+                <h3 style="color: #be8400; margin-bottom: 1rem; font-size: 1.5rem;">{{ project.title }}</h3>
+                <p style="color: #e0e0e0; line-height: 1.8; margin-bottom: 1rem;">{{ project.description|truncatewords:30 }}</p>
+                <div style="display: flex; gap: 2rem; margin-top: 1.5rem;">
+                    <div>
+                        <div style="font-size: 2rem; font-weight: bold; color: #be8400;">{{ project.contribution_percentage|default:"1" }}%</div>
+                        <div style="color: #999; font-size: 0.9rem;">of sales</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 2rem; font-weight: bold; color: #be8400;">{{ project.status }}</div>
+                        <div style="color: #999; font-size: 0.9rem;">Status</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Featured Local Brands -->
+{% if featured_vendors %}
+<section style="padding: 4rem 2rem; background-color: #ffffff;">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Meet Our Makers</h2>
+            <p class="section-subtitle">The heartbeat of Mushanai — talented artisans, designers, and innovators shaping a new era of local luxury.</p>
+        </div>
+        <div class="vendor-grid">
+            {% for vendor_profile in featured_vendors %}
+            <a href="{% url 'vendor_profile_public' vendor_profile.vendor.id %}" class="vendor-card">
+                {% if vendor_profile.logo %}
+                <img src="{{ vendor_profile.logo.url }}" alt="{{ vendor_profile.company_name }}" class="vendor-logo">
+        {% else %}
+                <div class="vendor-logo" style="display: flex; align-items: center; justify-content: center; color: #999; font-size: 2rem;">
+                    {{ vendor_profile.company_name|first|upper }}
+                </div>
+                {% endif %}
+                <h3 style="font-size: 1.1rem; font-weight: 600; color: #000000; margin-bottom: 0.5rem;">{{ vendor_profile.company_name }}</h3>
+                {% if vendor_profile.overall_rating > 0 %}
+                <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                    <span style="color: #be8400;">⭐</span>
+                    <span style="font-weight: bold;">{{ vendor_profile.overall_rating|floatformat:1 }}</span>
+                    <span style="color: #666; font-size: 0.9rem;">({{ vendor_profile.total_reviews }})</span>
+                </div>
+        {% endif %}
+                <p style="color: #666; font-size: 0.9rem;">{{ vendor_profile.product_count }} product{{ vendor_profile.product_count|pluralize }}</p>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    </section>
+{% endif %}
+
+<!-- Trending & Everyday Finds -->
+{% if trending_products %}
+<section style="padding: 4rem 2rem; background-color: #f8f8f8;">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Trending Now</h2>
+            <p class="section-subtitle">Loved by Our Community</p>
+        </div>
+        <div class="grid">
+            {% for product in trending_products %}
+                <a href="{% url 'product_detail' product.slug %}" style="text-decoration: none; color: inherit;">
+            <div class="product-card" style="cursor: pointer; transition: transform 0.2s;">
+                    {% if product.primary_image %}
+                        <img src="{{ product.primary_image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                        <div style="width: 100%; height: 200px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #999;">
+                            No Image
+                        </div>
+                    {% endif %}
+                    <div class="product-card-body">
+                        <div class="product-card-title">{{ product.name }}</div>
+                    <div class="product-card-vendor">
+                        By:
+                        {% if product.has_vendor_account %}
+                            <a href="{% url 'vendor_profile_public' product.vendor.id %}" style="color: #be8400; text-decoration: none;">{{ product.vendor_display_name }}</a>
+                        {% else %}
+                            {{ product.vendor_display_name }}
+                        {% endif %}
+                    </div>
+                        {% if product.avg_rating %}
+                            <div style="margin: 0.5rem 0; font-size: 0.9rem;">
+                                <span style="color: #be8400;">{{ product.avg_rating|stars }}</span>
+                                <span style="color: #666; margin-left: 0.5rem;">{{ product.avg_rating|floatformat:1 }}</span>
+                            </div>
+                        {% endif %}
+                        <div class="product-card-price">${{ product.price }}</div>
+                        {% if product.is_made_from_local_materials %}
+                            <span style="display: inline-block; background-color: #be8400; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-top: 0.5rem;">Local Materials</span>
+                        {% endif %}
+                </div>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Testimonials Section -->
+{% if featured_testimonials %}
+<section style="padding: 4rem 2rem; background-color: #ffffff;">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">What Our Community Says</h2>
+            <p class="section-subtitle">Real stories from those who create and those who believe in them.</p>
+        </div>
+        <div class="testimonial-grid">
+            {% for testimonial in featured_testimonials %}
+            <div class="testimonial-card">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                    <span style="color: #be8400; font-size: 1.2rem;">{{ testimonial.rating|stars }}</span>
+                    {% if testimonial.is_verified_purchase %}
+                    <span style="background-color: #be8400; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">✓ Verified</span>
+                    {% endif %}
+                </div>
+                <p class="testimonial-text">"{{ testimonial.testimonial|truncatewords:40 }}"</p>
+                <div class="testimonial-author">
+                    <div>
+                        <div class="testimonial-author-name">{{ testimonial.display_name|default:testimonial.customer.username }}</div>
+                        <div style="color: #666; font-size: 0.9rem;">
+                            about {% if testimonial.vendor.vendor_profile %}{{ testimonial.vendor.vendor_profile.company_name }}{% else %}{{ testimonial.vendor.username }}{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        </div>
+    </section>
+    {% endif %}
+    
+<!-- Newsletter Section -->
+<section class="newsletter-section">
+    <div class="container">
+        <h2 class="section-title" style="color: #000000;">Be Part of the Movement.</h2>
+        <p class="section-subtitle" style="color: #666;">Get updates on new collections, community stories, and exclusive offers.</p>
+        <form class="newsletter-form" method="post" action="#">
+            {% csrf_token %}
+            <input type="email" name="email" placeholder="Enter your email" required>
+            <button type="submit" class="btn btn-primary" style="padding: 1rem 2rem; white-space: nowrap;">Join Mushanai</button>
+        </form>
+    </div>
+    </section>
+{% endblock %}

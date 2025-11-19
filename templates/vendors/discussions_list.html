@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Vendor Discussions - Community Forum{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-comments"></i> Vendor Forum</h2>
+                    <p class="text-muted">Connect and discuss with other vendors</p>
+                </div>
+                <div>
+                    <a href="{% url 'vendor_discussion_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> New Discussion
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Categories Sidebar -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="fas fa-folder"></i> Categories</h6>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'vendor_discussions' %}" class="list-group-item list-group-item-action {% if not selected_category %}active{% endif %}">
+                        <i class="fas fa-list"></i> All Discussions
+                    </a>
+                    {% for category in categories %}
+                    <a href="?category={{ category.slug }}" class="list-group-item list-group-item-action {% if selected_category == category.slug %}active{% endif %}">
+                        {% if category.icon %}<i class="{{ category.icon }}"></i>{% endif %} {{ category.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Discussions List -->
+        <div class="col-md-9">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    {% if discussions %}
+                    <div class="list-group list-group-flush">
+                        {% for discussion in discussions %}
+                        <div class="list-group-item {% if discussion.is_pinned %}bg-light border-primary border-start border-4{% endif %}">
+                            <div class="d-flex w-100 justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h5 class="mb-1">
+                                        {% if discussion.is_pinned %}
+                                        <i class="fas fa-thumbtack text-primary"></i>
+                                        {% endif %}
+                                        {% if discussion.is_announcement %}
+                                        <i class="fas fa-bullhorn text-warning"></i>
+                                        {% endif %}
+                                        <a href="{% url 'vendor_discussion_detail' discussion.id %}" class="text-decoration-none">
+                                            {{ discussion.title }}
+                                        </a>
+                                        {% if discussion.is_locked %}
+                                        <i class="fas fa-lock text-muted"></i>
+                                        {% endif %}
+                                    </h5>
+                                    <p class="mb-2 text-muted">{{ discussion.content|truncatewords:30 }}</p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-user"></i> {{ discussion.author.username }}
+                                        <i class="fas fa-folder ms-3"></i> {{ discussion.category.name }}
+                                        <i class="fas fa-clock ms-3"></i> {{ discussion.created_at|timesince }} ago
+                                    </small>
+                                </div>
+                                <div class="text-end ms-3">
+                                    <div class="mb-2">
+                                        <span class="badge bg-info">
+                                            <i class="fas fa-eye"></i> {{ discussion.view_count }}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-comments"></i> {{ discussion.reply_count }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                        <h4>No discussions yet</h4>
+                        <p class="text-muted">Be the first to start a discussion!</p>
+                        <a href="{% url 'vendor_discussion_create' %}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Create Discussion
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

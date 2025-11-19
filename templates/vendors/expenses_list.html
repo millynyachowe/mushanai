@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Expenses - {{ request.user.vendor_profile.company_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-receipt"></i> Expense Management</h2>
+                    <p class="text-muted">Track and manage your business expenses</p>
+                </div>
+                <div>
+                    <a href="{% url 'vendor_expenses_export' %}{% if selected_category or start_date or end_date %}?category={{ selected_category }}&start_date={{ start_date }}&end_date={{ end_date }}{% endif %}" class="btn btn-outline-success me-2">
+                        <i class="fas fa-download"></i> Export CSV
+                    </a>
+                    <a href="{% url 'vendor_expense_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Record Expense
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-danger">
+                <div class="card-body text-center">
+                    <h6 class="text-muted mb-1">Total Expenses</h6>
+                    <h3 class="mb-0 text-danger">${{ total_expenses|floatformat:2 }}</h3>
+                    <small class="text-muted">{{ expenses.count }} expense{% if expenses.count != 1 %}s{% endif %}</small>
+                </div>
+            </div>
+        </div>
+        {% for breakdown in category_breakdown|slice:":3" %}
+        <div class="col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted mb-1">{{ breakdown.category }}</h6>
+                    <h4 class="mb-0">${{ breakdown.total|floatformat:2 }}</h4>
+                    <small class="text-muted">{{ breakdown.count }} item{% if breakdown.count != 1 %}s{% endif %}</small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Filters -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <h6 class="mb-0"><i class="fas fa-filter"></i> Filters</h6>
+        </div>
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-3">
+                    <label for="search" class="form-label">Search</label>
+                    <input type="text" class="form-control" id="search" name="search" value="{{ search }}" placeholder="Description, notes, reference...">
+                </div>
+                <div class="col-md-2">
+                    <label for="category" class="form-label">Category</label>
+                    <select class="form-select" id="category" name="category">
+                        <option value="">All Categories</option>
+                        {% for value, label in expense_categories %}
+                        <option value="{{ value }}" {% if selected_category == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="start_date" class="form-label">Start Date</label>
+                    <input type="date" class="form-control" id="start_date" name="start_date" value="{{ start_date }}">
+                </div>
+                <div class="col-md-2">
+                    <label for="end_date" class="form-label">End Date</label>
+                    <input type="date" class="form-control" id="end_date" name="end_date" value="{{ end_date }}">
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-search"></i> Filter
+                    </button>
+                    <a href="{% url 'vendor_expenses_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i> Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Expenses Table -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Payment Method</th>
+                            <th class="text-end">Amount</th>
+                            <th class="text-center">Receipt</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for expense in expenses %}
+                        <tr>
+                            <td>{{ expense.expense_date|date:"M d, Y" }}</td>
+                            <td>
+                                <strong>{{ expense.description }}</strong>
+                                {% if expense.company %}
+                                <br><small class="text-muted"><i class="fas fa-building"></i> {{ expense.company.name }}</small>
+                                {% endif %}
+                                {% if expense.notes %}
+                                <br><small class="text-muted">{{ expense.notes|truncatewords:10 }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">{{ expense.get_category_display }}</span>
+                            </td>
+                            <td>
+                                {% if expense.payment_method %}
+                                {{ expense.payment_method }}
+                                {% else %}
+                                <span class="text-muted">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <strong class="text-danger">${{ expense.amount }}</strong>
+                            </td>
+                            <td class="text-center">
+                                {% if expense.receipt_image %}
+                                <a href="{{ expense.receipt_image.url }}" target="_blank" class="btn btn-sm btn-outline-primary" title="View Receipt">
+                                    <i class="fas fa-image"></i>
+                                </a>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'vendor_expense_detail' expense.id %}" class="btn btn-sm btn-outline-info" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'vendor_expense_edit' expense.id %}" class="btn btn-sm btn-outline-primary" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'vendor_expense_delete' expense.id %}" class="btn btn-sm btn-outline-danger" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-5">
+                                <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                                <p>No expenses found.</p>
+                                {% if selected_category or start_date or end_date or search %}
+                                <p>Try adjusting your filters or <a href="{% url 'vendor_expenses_list' %}">clear all filters</a>.</p>
+                                {% else %}
+                                <a href="{% url 'vendor_expense_create' %}" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> Record Your First Expense
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    {% if expenses %}
+                    <tfoot>
+                        <tr class="table-light">
+                            <td colspan="4" class="text-end"><strong>Total (Filtered):</strong></td>
+                            <td class="text-end"><strong class="text-danger">${{ total_expenses|floatformat:2 }}</strong></td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </tfoot>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

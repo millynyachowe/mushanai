@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Price Alerts - Mushanai{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 1200px; margin: 2rem auto; padding: 0 1rem;">
+    <h1 style="font-size: 2.5rem; color: #000000; margin-bottom: 2rem;">Price Alerts</h1>
+    
+    {% if alerts %}
+    <div style="display: grid; gap: 1rem;">
+        {% for alert in alerts %}
+        <div class="card" style="padding: 1.5rem; border: 1px solid #e0e0e0; border-radius: 8px; {% if alert.status == 'TRIGGERED' %}border-left: 4px solid #4caf50;{% elif alert.status == 'ACTIVE' %}border-left: 4px solid #be8400;{% endif %}">
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+                <div style="flex: 1;">
+                    <h3 style="font-size: 1.3rem; color: #000000; margin-bottom: 0.5rem;">
+                        <a href="{% url 'product_detail' alert.product.slug %}" style="color: #000000; text-decoration: none;">
+                            {{ alert.product.name }}
+                        </a>
+                    </h3>
+                    <div style="display: flex; gap: 2rem; margin: 1rem 0; flex-wrap: wrap;">
+                        <div>
+                            <span style="color: #666;">Original Price:</span>
+                            <span style="font-weight: bold; color: #000000; margin-left: 0.5rem;">${{ alert.original_price|floatformat:2 }}</span>
+                        </div>
+                        <div>
+                            <span style="color: #666;">Current Price:</span>
+                            <span style="font-weight: bold; color: #be8400; margin-left: 0.5rem;">${{ alert.product.price|floatformat:2 }}</span>
+                        </div>
+                        {% if alert.target_price %}
+                        <div>
+                            <span style="color: #666;">Target Price:</span>
+                            <span style="font-weight: bold; color: #000000; margin-left: 0.5rem;">${{ alert.target_price|floatformat:2 }}</span>
+                        </div>
+                        {% endif %}
+                        {% if alert.target_percentage %}
+                        <div>
+                            <span style="color: #666;">Target Drop:</span>
+                            <span style="font-weight: bold; color: #000000; margin-left: 0.5rem;">{{ alert.target_percentage }}%</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <span style="display: inline-block; padding: 0.5rem 1rem; border-radius: 4px; font-size: 0.9rem;
+                            {% if alert.status == 'TRIGGERED' %}background-color: #4caf50; color: white;
+                            {% elif alert.status == 'ACTIVE' %}background-color: #be8400; color: white;
+                            {% elif alert.status == 'CANCELLED' %}background-color: #999; color: white;
+                            {% else %}background-color: #e0e0e0; color: #666;{% endif %}">
+                            {{ alert.get_status_display }}
+                        </span>
+                    </div>
+                    {% if alert.status == 'TRIGGERED' %}
+                    <div style="margin-top: 1rem; padding: 1rem; background-color: #e8f5e9; border-radius: 4px; border-left: 4px solid #4caf50;">
+                        <p style="color: #2e7d32; margin: 0; font-weight: bold;">🎉 Price drop detected! The price has reached your target.</p>
+                    </div>
+                    {% endif %}
+                </div>
+                <div style="margin-left: 1rem;">
+                    {% if alert.status == 'ACTIVE' %}
+                    <form method="post" action="{% url 'price_alert_delete' alert.id %}" style="display: inline;" onsubmit="return confirm('Cancel this price alert?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn" style="padding: 0.5rem 1rem; background-color: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Cancel
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 3rem; background-color: #f8f8f8; border-radius: 8px;">
+        <p style="color: #666; font-size: 1.1rem; margin-bottom: 1rem;">You don't have any price alerts yet.</p>
+        <p style="color: #666; font-size: 0.9rem;">Create price alerts on product pages to get notified when prices drop!</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

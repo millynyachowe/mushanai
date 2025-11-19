@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load product_tags %}
+
+{% block title %}{{ wishlist.name }} - Mushanai{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 1200px; margin: 2rem auto; padding: 0 1rem;">
+    <div style="margin-bottom: 2rem;">
+        <a href="{% url 'wishlist_list' %}" style="color: #be8400; text-decoration: none;">← Back to Wishlists</a>
+    </div>
+    
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 2rem;">
+        <div>
+            <h1 style="font-size: 2.5rem; color: #000000; margin-bottom: 0.5rem;">{{ wishlist.name }}</h1>
+            {% if wishlist.description %}
+            <p style="color: #666; font-size: 1.1rem;">{{ wishlist.description }}</p>
+            {% endif %}
+            {% if is_shared %}
+            <p style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">Shared by {{ wishlist.customer.username }}</p>
+            {% endif %}
+        </div>
+        {% if not is_shared %}
+        <div style="display: flex; gap: 0.5rem;">
+            {% if wishlist.is_public and wishlist.share_token %}
+            <button onclick="copyShareLink('{{ wishlist.share_token }}')" class="btn btn-primary" style="padding: 0.75rem 1.5rem;">
+                Share Wishlist
+            </button>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    
+    <div style="background-color: #f8f8f8; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div>
+                <div style="font-size: 2rem; font-weight: bold; color: #be8400;">{{ wishlist.item_count }}</div>
+                <div style="color: #666;">Items</div>
+            </div>
+            <div>
+                <div style="font-size: 2rem; font-weight: bold; color: #be8400;">${{ wishlist.total_value|floatformat:2 }}</div>
+                <div style="color: #666;">Total Value</div>
+            </div>
+        </div>
+    </div>
+    
+    {% if items %}
+    <div class="grid">
+        {% for item in items %}
+        <div class="product-card">
+            <a href="{% url 'product_detail' item.product.slug %}" style="text-decoration: none; color: inherit;">
+                {% if item.product.primary_image %}
+                    <img src="{{ item.product.primary_image.url }}" alt="{{ item.product.name }}">
+                {% else %}
+                    <div style="width: 100%; height: 200px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #999;">
+                        No Image
+                    </div>
+                {% endif %}
+                <div class="product-card-body">
+                    <div class="product-card-title">{{ item.product.name }}</div>
+                    <div class="product-card-vendor">
+                        By:
+                        {% if item.product.has_vendor_account %}
+                            <a href="{% url 'vendor_profile_public' item.product.vendor.id %}" style="color: #be8400; text-decoration: none;">{{ item.product.vendor_display_name }}</a>
+                        {% else %}
+                            {{ item.product.vendor_display_name }}
+                        {% endif %}
+                    </div>
+                    <div class="product-card-price">${{ item.product.price }}</div>
+                    {% if item.notes %}
+                    <div style="margin-top: 0.5rem; padding: 0.5rem; background-color: #f8f8f8; border-radius: 4px; font-size: 0.9rem; color: #666;">
+                        Note: {{ item.notes|truncatewords:10 }}
+                    </div>
+                    {% endif %}
+                </div>
+            </a>
+            {% if not is_shared %}
+            <div style="padding: 0.5rem;">
+                <form method="post" action="{% url 'wishlist_remove_product' item.id %}" style="display: inline;" onsubmit="return confirm('Remove this item from wishlist?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn" style="width: 100%; padding: 0.5rem; background-color: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        Remove
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 3rem; background-color: #f8f8f8; border-radius: 8px;">
+        <p style="color: #666; font-size: 1.1rem;">This wishlist is empty.</p>
+        {% if not is_shared %}
+        <a href="{% url 'home' %}" class="btn btn-primary" style="margin-top: 1rem; padding: 0.75rem 2rem;">
+            Browse Products
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+{% if not is_shared %}
+<script>
+function copyShareLink(shareToken) {
+    const url = window.location.origin + '/customer/wishlist/share/' + shareToken + '/';
+    navigator.clipboard.writeText(url).then(function() {
+        alert('Wishlist link copied to clipboard!');
+    }, function() {
+        const input = document.createElement('input');
+        input.value = url;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        alert('Wishlist link copied to clipboard!');
+    });
+}
+</script>
+{% endif %}
+{% endblock %}
+

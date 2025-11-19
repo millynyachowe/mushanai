@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}My Projects - Mushanai{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 style="font-size: 2rem; margin-bottom: 2rem; color: #000000;">Projects I've Supported</h1>
+    
+    {% if project_votes %}
+    <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));">
+        {% for vote in project_votes %}
+        <div class="card">
+            {% if vote.project.image %}
+                <img src="{{ vote.project.image.url }}" alt="{{ vote.project.title }}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 1rem;">
+            {% endif %}
+            
+            <h3 style="font-size: 1.25rem; color: #000000; margin-bottom: 0.5rem;">
+                <a href="{% url 'project_detail' vote.project.slug %}" style="color: #be8400; text-decoration: none;">{{ vote.project.title }}</a>
+            </h3>
+            
+            <div style="margin: 1rem 0;">
+                <p style="color: #666; margin-bottom: 0.5rem;">Your contribution: <strong style="color: #be8400;">${{ vote.vote_amount|floatformat:2 }}</strong></p>
+                <p style="color: #666; font-size: 0.9rem;">Date: {{ vote.created_at|date:"F d, Y" }}</p>
+            </div>
+            
+            <div style="margin: 1rem 0;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span style="color: #666;">Progress</span>
+                    <span style="font-weight: bold; color: #be8400;">{{ vote.project.funding_percentage|floatformat:1 }}%</span>
+                </div>
+                <div style="width: 100%; height: 8px; background-color: #e0e0e0; border-radius: 4px; overflow: hidden;">
+                    <div style="width: {{ vote.project.funding_percentage }}%; height: 100%; background-color: #be8400;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+                    <span>${{ vote.project.current_funding|floatformat:2 }}</span>
+                    <span>${{ vote.project.target_amount|floatformat:2 }} goal</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card" style="text-align: center; padding: 3rem;">
+        <p style="color: #666; margin-bottom: 1.5rem;">You haven't supported any projects yet.</p>
+        <a href="{% url 'project_list' %}" class="btn btn-primary">Browse Projects</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

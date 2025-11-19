@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}My Products - Mushanai{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 style="font-size: 2rem; color: #000000;">My Products</h1>
+            <a href="{% url 'vendor_dashboard' %}" class="btn btn-outline" style="margin-top: 0.5rem; padding: 0.4rem 0.9rem;">← Back to Dashboard</a>
+        </div>
+        <a href="{% url 'vendor_product_create' %}" class="btn btn-primary">Add New Product</a>
+    </div>
+    
+    {% if products %}
+    <div class="card">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 2px solid #e0e0e0;">
+                    <th style="padding: 1rem; text-align: left;">Product</th>
+                    <th style="padding: 1rem; text-align: left;">Price</th>
+                    <th style="padding: 1rem; text-align: left;">Stock</th>
+                    <th style="padding: 1rem; text-align: left;">Clicks</th>
+                    <th style="padding: 1rem; text-align: left;">In Cart</th>
+                    <th style="padding: 1rem; text-align: left;">Status</th>
+                    <th style="padding: 1rem; text-align: left;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr style="border-bottom: 1px solid #e0e0e0;">
+                    <td style="padding: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            {% if product.primary_image %}
+                                <img src="{{ product.primary_image.url }}" alt="{{ product.name }}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">
+                            {% endif %}
+                            <div>
+                                <strong>{{ product.name }}</strong>
+                                {% if product.is_made_from_local_materials %}
+                                    <span style="display: inline-block; background-color: #be8400; color: white; padding: 0.1rem 0.5rem; border-radius: 4px; font-size: 0.7rem; margin-left: 0.5rem;">Local</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                    <td style="padding: 1rem;">${{ product.price }}</td>
+                    <td style="padding: 1rem;">{{ product.stock_quantity }}</td>
+                    <td style="padding: 1rem;">{{ product.search_count }}</td>
+                    <td style="padding: 1rem;">
+                        {% with cart_count=product.cart_items.count %}
+                            {{ cart_count }}
+                        {% endwith %}
+                    </td>
+                    <td style="padding: 1rem;">
+                        {% if product.is_active %}
+                            <span style="color: green;">Active</span>
+                        {% else %}
+                            <span style="color: red;">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 1rem;">
+                        <a href="{% url 'vendor_product_detail' product.pk %}" style="color: #be8400; text-decoration: none; margin-right: 1rem;">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="card" style="text-align: center; padding: 3rem;">
+        <p style="color: #666; margin-bottom: 1.5rem;">You haven't created any products yet.</p>
+        <a href="{% url 'vendor_product_create' %}" class="btn btn-primary">Create Your First Product</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

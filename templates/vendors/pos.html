@@ -1,0 +1,350 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Point of Sale - {{ vendor_profile.company_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2><i class="fas fa-cash-register"></i> Point of Sale</h2>
+            <p class="text-muted">Create receipts for walk-in customers</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Product Selection -->
+        <div class="col-md-7">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-shopping-cart"></i> Select Products</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Search Products -->
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="product-search" placeholder="Search products by name...">
+                    </div>
+
+                    <!-- Product Grid -->
+                    <div class="row" id="product-grid">
+                        {% for product in products %}
+                        <div class="col-md-4 col-sm-6 mb-3 product-item" data-product-id="{{ product.id }}" data-product-name="{{ product.name }}" data-product-price="{{ product.price }}">
+                            <div class="card h-100 product-card" onclick="addToCart({{ product.id }}, '{{ product.name }}', {{ product.price }}, '{{ product.sku|default:'' }}')">
+                                <div class="card-body text-center">
+                                    {% if product.primary_image %}
+                                    <img src="{{ product.primary_image.url }}" alt="{{ product.name }}" class="img-fluid mb-2" style="max-height: 80px;">
+                                    {% else %}
+                                    <i class="fas fa-box fa-3x text-muted mb-2"></i>
+                                    {% endif %}
+                                    <h6 class="card-title mb-1">{{ product.name }}</h6>
+                                    <p class="text-primary fw-bold mb-0">${{ product.price }}</p>
+                                    {% if product.sku %}
+                                    <small class="text-muted">SKU: {{ product.sku }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="col-12">
+                            <p class="text-muted text-center">No products available. Please add products first.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cart & Checkout -->
+        <div class="col-md-5">
+            <div class="card shadow-sm sticky-top" style="top: 20px;">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-receipt"></i> Current Sale</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Company Selection (if multi-company) -->
+                    {% if companies %}
+                    <div class="mb-3">
+                        <label for="company-select" class="form-label">Company</label>
+                        <select class="form-select" id="company-select">
+                            <option value="">Default Company</option>
+                            {% for company in companies %}
+                            <option value="{{ company.id }}">{{ company.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+
+                    <!-- Customer Information -->
+                    <div class="mb-3">
+                        <label for="customer-name" class="form-label">Customer Name *</label>
+                        <input type="text" class="form-control" id="customer-name" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="customer-phone" class="form-label">Phone</label>
+                            <input type="text" class="form-control" id="customer-phone">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="customer-email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="customer-email">
+                        </div>
+                    </div>
+
+                    <!-- Cart Items -->
+                    <div class="mb-3">
+                        <h6>Items</h6>
+                        <div id="cart-items" class="border rounded p-2" style="min-height: 150px; max-height: 300px; overflow-y: auto;">
+                            <p class="text-muted text-center my-5">No items added</p>
+                        </div>
+                    </div>
+
+                    <!-- Totals -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal:</span>
+                            <span id="subtotal">$0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Tax:</span>
+                            <input type="number" class="form-control form-control-sm d-inline-block w-auto" id="tax-amount" value="0" step="0.01" style="max-width: 100px;">
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Discount:</span>
+                            <input type="number" class="form-control form-control-sm d-inline-block w-auto" id="discount-amount" value="0" step="0.01" style="max-width: 100px;">
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <strong>Total:</strong>
+                            <strong id="total" class="text-success">$0.00</strong>
+                        </div>
+                    </div>
+
+                    <!-- Payment Method -->
+                    <div class="mb-3">
+                        <label for="payment-method" class="form-label">Payment Method *</label>
+                        <select class="form-select" id="payment-method" required>
+                            <option value="CASH">Cash</option>
+                            <option value="ECOCASH">EcoCash</option>
+                            <option value="ONEMONEY">OneMoney</option>
+                            <option value="INNBUCKS">InnBucks</option>
+                            <option value="BANK_TRANSFER">Bank Transfer</option>
+                            <option value="CARD">Card</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="notes" rows="2"></textarea>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-success btn-lg" id="complete-sale-btn" onclick="completeSale()">
+                            <i class="fas fa-check"></i> Complete Sale
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="clearCart()">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.product-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+.product-card:hover {
+    border-color: #0d6efd;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.cart-item {
+    padding: 10px;
+    border-bottom: 1px solid #dee2e6;
+}
+.cart-item:last-child {
+    border-bottom: none;
+}
+</style>
+
+<script>
+let cartItems = [];
+
+// Product search
+document.getElementById('product-search').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const products = document.querySelectorAll('.product-item');
+    
+    products.forEach(function(product) {
+        const name = product.dataset.productName.toLowerCase();
+        if (name.includes(searchTerm)) {
+            product.style.display = '';
+        } else {
+            product.style.display = 'none';
+        }
+    });
+});
+
+// Add to cart
+function addToCart(productId, productName, price, sku) {
+    // Check if item already exists
+    const existingItem = cartItems.find(item => item.product_id === productId);
+    
+    if (existingItem) {
+        existingItem.quantity += 1;
+    } else {
+        cartItems.push({
+            product_id: productId,
+            product_name: productName,
+            unit_price: parseFloat(price),
+            quantity: 1,
+            sku: sku
+        });
+    }
+    
+    updateCartDisplay();
+}
+
+// Update cart display
+function updateCartDisplay() {
+    const cartContainer = document.getElementById('cart-items');
+    
+    if (cartItems.length === 0) {
+        cartContainer.innerHTML = '<p class="text-muted text-center my-5">No items added</p>';
+        updateTotals();
+        return;
+    }
+    
+    let html = '';
+    cartItems.forEach((item, index) => {
+        const itemTotal = item.quantity * item.unit_price;
+        html += `
+            <div class="cart-item d-flex justify-content-between align-items-center">
+                <div class="flex-grow-1">
+                    <strong>${item.product_name}</strong><br>
+                    <small class="text-muted">$${item.unit_price.toFixed(2)} each</small>
+                </div>
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="updateQuantity(${index}, -1)">-</button>
+                    <span class="mx-2">${item.quantity}</span>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="updateQuantity(${index}, 1)">+</button>
+                    <span class="ms-3 fw-bold">$${itemTotal.toFixed(2)}</span>
+                    <button class="btn btn-sm btn-outline-danger ms-2" onclick="removeItem(${index})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+    
+    cartContainer.innerHTML = html;
+    updateTotals();
+}
+
+// Update quantity
+function updateQuantity(index, change) {
+    cartItems[index].quantity += change;
+    if (cartItems[index].quantity <= 0) {
+        cartItems.splice(index, 1);
+    }
+    updateCartDisplay();
+}
+
+// Remove item
+function removeItem(index) {
+    cartItems.splice(index, 1);
+    updateCartDisplay();
+}
+
+// Update totals
+function updateTotals() {
+    const subtotal = cartItems.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
+    const tax = parseFloat(document.getElementById('tax-amount').value) || 0;
+    const discount = parseFloat(document.getElementById('discount-amount').value) || 0;
+    const total = subtotal + tax - discount;
+    
+    document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
+    document.getElementById('total').textContent = '$' + total.toFixed(2);
+}
+
+// Update totals when tax or discount changes
+document.getElementById('tax-amount').addEventListener('input', updateTotals);
+document.getElementById('discount-amount').addEventListener('input', updateTotals);
+
+// Clear cart
+function clearCart() {
+    if (confirm('Clear all items from cart?')) {
+        cartItems = [];
+        updateCartDisplay();
+    }
+}
+
+// Complete sale
+function completeSale() {
+    const customerName = document.getElementById('customer-name').value.trim();
+    const paymentMethod = document.getElementById('payment-method').value;
+    
+    if (!customerName) {
+        alert('Please enter customer name');
+        return;
+    }
+    
+    if (cartItems.length === 0) {
+        alert('Please add at least one item to the cart');
+        return;
+    }
+    
+    const button = document.getElementById('complete-sale-btn');
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    
+    const data = {
+        company_id: document.getElementById('company-select') ? document.getElementById('company-select').value : null,
+        customer_name: customerName,
+        customer_phone: document.getElementById('customer-phone').value,
+        customer_email: document.getElementById('customer-email').value,
+        payment_method: paymentMethod,
+        items: cartItems,
+        tax_amount: document.getElementById('tax-amount').value,
+        discount_amount: document.getElementById('discount-amount').value,
+        notes: document.getElementById('notes').value,
+        is_walk_in: true
+    };
+    
+    fetch('{% url "vendor_pos_create_receipt" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Receipt created successfully! Receipt #: ' + data.receipt_number);
+            // Redirect to receipt detail
+            window.location.href = '/vendor/receipts/' + data.receipt_id + '/';
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+    })
+    .finally(() => {
+        button.disabled = false;
+        button.innerHTML = '<i class="fas fa-check"></i> Complete Sale';
+    });
+}
+</script>
+{% endblock %}
+

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt {{ receipt.receipt_number }}</title>
+    <style>
+        @media print {
+            @page { margin: 0.5in; }
+            body { margin: 0; }
+        }
+        body {
+            font-family: 'Courier New', monospace;
+            font-size: 12pt;
+            line-height: 1.4;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 15px;
+        }
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 24pt;
+        }
+        .header p {
+            margin: 5px 0;
+        }
+        .section {
+            margin: 20px 0;
+        }
+        .section-title {
+            font-weight: bold;
+            border-bottom: 1px solid #000;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .total-row {
+            font-weight: bold;
+            font-size: 14pt;
+            background-color: #f0f0f0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #000;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>{{ vendor_profile.company_name }}</h1>
+        {% if vendor_profile.business_address %}
+        <p>{{ vendor_profile.business_address }}</p>
+        {% endif %}
+        {% if vendor_profile.business_phone %}
+        <p>Phone: {{ vendor_profile.business_phone }}</p>
+        {% endif %}
+        {% if vendor_profile.business_email %}
+        <p>Email: {{ vendor_profile.business_email }}</p>
+        {% endif %}
+    </div>
+
+    <!-- Receipt Info -->
+    <div class="section">
+        <div class="section-title">RECEIPT</div>
+        <div class="info-row">
+            <span><strong>Receipt #:</strong> {{ receipt.receipt_number }}</span>
+            <span><strong>Date:</strong> {{ receipt.sale_date|date:"M d, Y g:i A" }}</span>
+        </div>
+        <div class="info-row">
+            <span><strong>Payment:</strong> {{ receipt.get_payment_method_display }}</span>
+            {% if receipt.company %}
+            <span><strong>Company:</strong> {{ receipt.company.name }}</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Customer Info -->
+    <div class="section">
+        <div class="section-title">CUSTOMER</div>
+        <p><strong>Name:</strong> {{ receipt.customer_name }}</p>
+        {% if receipt.customer_phone %}
+        <p><strong>Phone:</strong> {{ receipt.customer_phone }}</p>
+        {% endif %}
+        {% if receipt.customer_email %}
+        <p><strong>Email:</strong> {{ receipt.customer_email }}</p>
+        {% endif %}
+    </div>
+
+    <!-- Items -->
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th class="text-center">Qty</th>
+                <th class="text-right">Price</th>
+                <th class="text-right">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in receipt.items.all %}
+            <tr>
+                <td>
+                    {{ item.product_name }}
+                    {% if item.product_sku %}<br>SKU: {{ item.product_sku }}{% endif %}
+                </td>
+                <td class="text-center">{{ item.quantity }}</td>
+                <td class="text-right">${{ item.unit_price }}</td>
+                <td class="text-right">${{ item.line_total }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="3" class="text-right"><strong>Subtotal:</strong></td>
+                <td class="text-right"><strong>${{ receipt.subtotal }}</strong></td>
+            </tr>
+            {% if receipt.tax_amount > 0 %}
+            <tr>
+                <td colspan="3" class="text-right">Tax:</td>
+                <td class="text-right">${{ receipt.tax_amount }}</td>
+            </tr>
+            {% endif %}
+            {% if receipt.discount_amount > 0 %}
+            <tr>
+                <td colspan="3" class="text-right">Discount:</td>
+                <td class="text-right">-${{ receipt.discount_amount }}</td>
+            </tr>
+            {% endif %}
+            <tr class="total-row">
+                <td colspan="3" class="text-right">TOTAL:</td>
+                <td class="text-right">${{ receipt.total_amount }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Notes -->
+    {% if receipt.notes %}
+    <div class="section">
+        <div class="section-title">NOTES</div>
+        <p>{{ receipt.notes }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Footer -->
+    <div class="footer">
+        <p><strong>THANK YOU FOR YOUR BUSINESS!</strong></p>
+        <p>Please keep this receipt for your records</p>
+        <p style="margin-top: 20px; font-size: 10pt;">
+            Generated: {{ receipt.created_at|date:"F d, Y g:i A" }}
+        </p>
+    </div>
+
+    <script>
+        // Auto-print when page loads
+        window.onload = function() {
+            window.print();
+        };
+    </script>
+</body>
+</html>
+

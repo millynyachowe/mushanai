@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.name }} - Mushanai{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 1000px;">
+    <div style="margin-bottom: 2rem;">
+        <a href="{% url 'vendor_product_list' %}" style="color: #be8400; text-decoration: none;">← Back to Products</a>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+        <div>
+            {% if product.primary_image %}
+                <img src="{{ product.primary_image.url }}" alt="{{ product.name }}" style="width: 100%; border-radius: 8px; border: 1px solid #e0e0e0;">
+            {% else %}
+                <div style="width: 100%; height: 400px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: #999;">
+                    No Image
+                </div>
+            {% endif %}
+        </div>
+        
+        <div>
+            <h1 style="font-size: 2rem; color: #000000; margin-bottom: 1rem;">{{ product.name }}</h1>
+            
+            <div style="margin-bottom: 1rem;">
+                <span style="font-size: 1.5rem; color: #be8400; font-weight: bold;">${{ product.price }}</span>
+                {% if product.compare_at_price %}
+                    <span style="text-decoration: line-through; color: #999; margin-left: 0.5rem;">${{ product.compare_at_price }}</span>
+                {% endif %}
+            </div>
+            
+            {% if product.short_description %}
+                <p style="color: #666; margin-bottom: 1rem;">{{ product.short_description }}</p>
+            {% endif %}
+            
+            <div style="margin: 1.5rem 0;">
+                <p style="margin-bottom: 0.5rem;"><strong>Description:</strong></p>
+                <p style="color: #666; line-height: 1.8;">{{ product.description }}</p>
+            </div>
+            
+            <div style="margin: 1.5rem 0; padding: 1rem; background-color: #f8f8f8; border-radius: 8px;">
+                <p style="margin-bottom: 0.5rem;"><strong>Status:</strong> 
+                    {% if product.is_active %}
+                        <span style="color: green;">Active</span>
+                    {% else %}
+                        <span style="color: red;">Inactive</span>
+                    {% endif %}
+                </p>
+                <p style="margin-bottom: 0.5rem;"><strong>Stock:</strong> {{ product.stock_quantity }}</p>
+                <p style="margin-bottom: 0.5rem;"><strong>SKU:</strong> {{ product.sku|default:"Not set" }}</p>
+                {% if product.category %}
+                    <p style="margin-bottom: 0.5rem;"><strong>Category:</strong> {{ product.category.name }}</p>
+                {% endif %}
+                {% if product.brand %}
+                    <p><strong>Brand:</strong> {{ product.brand.name }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">Product Analytics</div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-card-value">{{ clicks }}</div>
+                <div class="stat-card-label">Total Clicks/Views</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-card-value">{{ cart_items_count }}</div>
+                <div class="stat-card-label">Added to Cart</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-card-value">{{ order_items_count }}</div>
+                <div class="stat-card-label">Times Ordered</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-card-value">{{ product.stock_quantity }}</div>
+                <div class="stat-card-label">Stock Remaining</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile - Mushanai{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 800px;">
+    <h1 style="font-size: 2rem; margin-bottom: 2rem; color: #000000;">Edit Your Profile</h1>
+    
+    <div class="card">
+        <div class="card-header">Profile Information</div>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <h3 style="margin: 1.5rem 0 1rem 0; color: #000000; border-bottom: 2px solid #e0e0e0; padding-bottom: 0.5rem;">Personal Information</h3>
+            
+            <div class="form-group">
+                <label for="first_name">First Name</label>
+                <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="last_name">Last Name</label>
+                <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" value="{{ user.email }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="phone_number">Phone Number</label>
+                <input type="text" id="phone_number" name="phone_number" value="{{ user.phone_number }}">
+            </div>
+            
+            <h3 style="margin: 2rem 0 1rem 0; color: #000000; border-bottom: 2px solid #e0e0e0; padding-bottom: 0.5rem;">Business Information</h3>
+            
+            <div class="form-group">
+                <label for="company_name">Company Name *</label>
+                <input type="text" id="company_name" name="company_name" value="{{ vendor_profile.company_name }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="business_type">Business Type</label>
+                <input type="text" id="business_type" name="business_type" value="{{ vendor_profile.business_type }}" placeholder="e.g., Fashion, Food, Handmade">
+            </div>
+            
+            <div class="form-group">
+                <label for="business_phone">Business Phone</label>
+                <input type="text" id="business_phone" name="business_phone" value="{{ vendor_profile.business_phone }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="business_email">Business Email</label>
+                <input type="email" id="business_email" name="business_email" value="{{ vendor_profile.business_email }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="business_address">Business Address</label>
+                <textarea id="business_address" name="business_address" rows="3">{{ vendor_profile.business_address }}</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="logo">Company Logo</label>
+                {% if vendor_profile.logo %}
+                    <div style="margin-bottom: 0.5rem;">
+                        <img src="{{ vendor_profile.logo.url }}" alt="Current logo" style="max-width: 200px; border: 1px solid #e0e0e0; border-radius: 4px;">
+                    </div>
+                {% endif %}
+                <input type="file" id="logo" name="logo" accept="image/*">
+            </div>
+            
+            <h3 style="margin: 2rem 0 1rem 0; color: #000000; border-bottom: 2px solid #e0e0e0; padding-bottom: 0.5rem;">Project Contribution</h3>
+            
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                    <input type="checkbox" name="participate_in_projects" {% if vendor_profile.participate_in_projects %}checked{% endif %}>
+                    Participate in community projects (customers' purchases will contribute to projects)
+                </label>
+            </div>
+            
+            {% if vendor_profile.participate_in_projects %}
+            <div class="form-group">
+                <label for="selected_project">Select Project for Customer Contributions</label>
+                <select id="selected_project" name="selected_project">
+                    <option value="">-- No project selected (customers can choose) --</option>
+                    {% for project in approved_projects %}
+                        <option value="{{ project.id }}" {% if vendor_profile.selected_project and vendor_profile.selected_project.id == project.id %}selected{% endif %}>
+                            {{ project.title }} ({{ project.funding_percentage|floatformat:1 }}% funded)
+                        </option>
+                    {% endfor %}
+                </select>
+                <small style="color: #666; display: block; margin-top: 0.5rem;">
+                    💡 Select a project to automatically direct your customers' contributions to it. If left blank, customers can choose their own project during checkout.
+                </small>
+            </div>
+            {% endif %}
+            
+            <h3 style="margin: 2rem 0 1rem 0; color: #000000; border-bottom: 2px solid #e0e0e0; padding-bottom: 0.5rem;">Brand Story</h3>
+            
+            <div class="form-group">
+                <label for="description">Tell Your Brand Story</label>
+                <textarea id="description" name="description" rows="8" placeholder="Share your brand's story, mission, and values. This will be published on the Brand Stories page if you choose to publish.">{{ vendor_profile.description }}</textarea>
+                <small style="color: #666; display: block; margin-top: 0.5rem;">
+                    💡 When you fill this out and save, your brand story will appear on the <a href="{% url 'brand_stories' %}" style="color: #be8400;">Brand Stories</a> page.
+                </small>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Save Profile</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

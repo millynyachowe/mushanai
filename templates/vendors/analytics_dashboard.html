@@ -1,0 +1,284 @@
+{% extends 'base.html' %}
+
+{% block title %}Advanced Analytics - Mushanai{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 1200px; margin: 2rem auto; padding: 0 1rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+        <div>
+            <h1 style="font-size: 2.5rem; color: #000000;">Advanced Analytics</h1>
+            <p style="color: #666;">Deep dive into your sales, customers, and performance trends.</p>
+        </div>
+        <a href="{% url 'vendor_dashboard' %}" class="btn btn-outline" style="padding: 0.75rem 1.5rem;">← Back to Dashboard</a>
+    </div>
+    
+    <!-- Revenue Forecasting -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">Revenue Forecast</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; padding: 1.5rem;">
+            <div class="stat-card" style="border-left: 4px solid #be8400;">
+                <div class="stat-card-value">${{ revenue_forecast.last_30_days|floatformat:2 }}</div>
+                <div class="stat-card-label">Revenue (Last 30 days)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-value">${{ revenue_forecast.prev_30_days|floatformat:2 }}</div>
+                <div class="stat-card-label">Revenue (Previous 30 days)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-value">{% if revenue_forecast.growth_rate %}{{ revenue_forecast.growth_rate|floatformat:2 }}%{% else %}N/A{% endif %}</div>
+                <div class="stat-card-label">Growth Rate</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-value">${{ revenue_forecast.avg_daily_revenue|floatformat:2 }}</div>
+                <div class="stat-card-label">Average Daily Revenue</div>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #17a2b8;">
+                <div class="stat-card-value">${{ revenue_forecast.forecast_next_30|floatformat:2 }}</div>
+                <div class="stat-card-label">Projected Next 30 Days</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sales Trends -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">Sales Trends</div>
+        <div style="padding: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+            <div>
+                <h3 style="font-size: 1.3rem; color: #000000; margin-bottom: 0.75rem;">Daily (30 days)</h3>
+                {% if sales_daily %}
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #e0e0e0;">
+                            <th style="padding: 0.75rem; text-align: left;">Date</th>
+                            <th style="padding: 0.75rem; text-align: right;">Revenue</th>
+                            <th style="padding: 0.75rem; text-align: right;">Orders</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in sales_daily %}
+                        <tr style="border-bottom: 1px solid #f0f0f0;">
+                            <td style="padding: 0.75rem;">{{ entry.date }}</td>
+                            <td style="padding: 0.75rem; text-align: right;">${{ entry.revenue|floatformat:2 }}</td>
+                            <td style="padding: 0.75rem; text-align: right;">{{ entry.orders }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p style="color: #666;">No recent sales data.</p>
+                {% endif %}
+            </div>
+            <div>
+                <h3 style="font-size: 1.3rem; color: #000000; margin-bottom: 0.75rem;">Weekly (12 weeks)</h3>
+                {% if sales_weekly %}
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #e0e0e0;">
+                            <th style="padding: 0.75rem; text-align: left;">Week Starting</th>
+                            <th style="padding: 0.75rem; text-align: right;">Revenue</th>
+                            <th style="padding: 0.75rem; text-align: right;">Orders</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in sales_weekly %}
+                        <tr style="border-bottom: 1px solid #f0f0f0;">
+                            <td style="padding: 0.75rem;">{{ entry.date }}</td>
+                            <td style="padding: 0.75rem; text-align: right;">${{ entry.revenue|floatformat:2 }}</td>
+                            <td style="padding: 0.75rem; text-align: right;">{{ entry.orders }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p style="color: #666;">No weekly sales data yet.</p>
+                {% endif %}
+            </div>
+            <div>
+                <h3 style="font-size: 1.3rem; color: #000000; margin-bottom: 0.75rem;">Monthly (6 months)</h3>
+                {% if sales_monthly %}
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #e0e0e0;">
+                            <th style="padding: 0.75rem; text-align: left;">Month</th>
+                            <th style="padding: 0.75rem; text-align: right;">Revenue</th>
+                            <th style="padding: 0.75rem; text-align: right;">Orders</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in sales_monthly %}
+                        <tr style="border-bottom: 1px solid #f0f0f0;">
+                            <td style="padding: 0.75rem;">{{ entry.date }}</td>
+                            <td style="padding: 0.75rem; text-align: right;">${{ entry.revenue|floatformat:2 }}</td>
+                            <td style="padding: 0.75rem; text-align: right;">{{ entry.orders }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p style="color: #666;">No monthly sales data yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Product Performance -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">Top Products</div>
+        <div style="padding: 1.5rem;">
+            {% if product_performance %}
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #e0e0e0;">
+                        <th style="padding: 0.75rem; text-align: left;">Product</th>
+                        <th style="padding: 0.75rem; text-align: right;">Revenue</th>
+                        <th style="padding: 0.75rem; text-align: right;">Units Sold</th>
+                        <th style="padding: 0.75rem; text-align: right;">Avg. Price</th>
+                        <th style="padding: 0.75rem; text-align: right;">Avg. Rating</th>
+                        <th style="padding: 0.75rem; text-align: right;">Views</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in product_performance %}
+                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                        <td style="padding: 0.75rem;">
+                            {% if product.slug %}
+                                <a href="{% url 'product_detail' product.slug %}" style="color: #be8400; text-decoration: none;">{{ product.product_name }}</a>
+                            {% else %}
+                                {{ product.product_name }}
+                            {% endif %}
+                        </td>
+                        <td style="padding: 0.75rem; text-align: right;">${{ product.revenue|floatformat:2 }}</td>
+                        <td style="padding: 0.75rem; text-align: right;">{{ product.units_sold }}</td>
+                        <td style="padding: 0.75rem; text-align: right;">${{ product.avg_price|floatformat:2 }}</td>
+                        <td style="padding: 0.75rem; text-align: right;">{% if product.avg_rating %}{{ product.avg_rating }}{% else %}-{% endif %}</td>
+                        <td style="padding: 0.75rem; text-align: right;">{% if product.view_count is not None %}{{ product.view_count }}{% else %}-{% endif %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="color: #666;">No product sales yet.</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Customer Demographics -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">Customer Demographics</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; padding: 1.5rem;">
+            <div>
+                <h3 style="font-size: 1.3rem; color: #000000; margin-bottom: 0.75rem;">Top Cities</h3>
+                {% if city_distribution %}
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    {% for city in city_distribution %}
+                    <li style="padding: 0.5rem 0; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between;">
+                        <span>{{ city.city }}</span>
+                        <span style="color: #666;">{{ city.total }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p style="color: #666;">No city data yet.</p>
+                {% endif %}
+            </div>
+            <div>
+                <h3 style="font-size: 1.3rem; color: #000000; margin-bottom: 0.75rem;">Top Countries</h3>
+                {% if country_distribution %}
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    {% for country in country_distribution %}
+                    <li style="padding: 0.5rem 0; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between;">
+                        <span>{{ country.country }}</span>
+                        <span style="color: #666;">{{ country.total }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p style="color: #666;">No country data yet.</p>
+                {% endif %}
+            </div>
+            <div>
+                <h3 style="font-size: 1.3rem; color: #000000; margin-bottom: 0.75rem;">Customer Locations</h3>
+                {% if customer_location_breakdown %}
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    {% for location in customer_location_breakdown %}
+                    <li style="padding: 0.5rem 0; border-bottom: 1px solid #f0f0f0;">
+                        <strong>{{ location.country }}</strong> · {{ location.city }}
+                        <span style="float: right; color: #666;">{{ location.total }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p style="color: #666;">No location data yet.</p>
+                {% endif %}
+            </div>
+            <div>
+                <h3 style="font-size: 1.3rem; color: #000000; margin-bottom: 0.75rem;">Customer Mix</h3>
+                <div style="padding: 1rem; background-color: #f8f8f8; border-radius: 8px;">
+                    <p style="margin: 0.5rem 0;">New Customers: <strong>{{ new_customers }}</strong></p>
+                    <p style="margin: 0.5rem 0;">Returning Customers: <strong>{{ returning_customers }}</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Conversion Funnel -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">Conversion Funnel</div>
+        <div style="padding: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem;">
+            <div class="stat-card">
+                <div class="stat-card-value">{{ conversion_funnel.views }}</div>
+                <div class="stat-card-label">Product Views</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-value">{{ conversion_funnel.cart_adds }}</div>
+                <div class="stat-card-label">Cart Adds</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-value">{{ conversion_funnel.orders }}</div>
+                <div class="stat-card-label">Orders</div>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #17a2b8;">
+                <div class="stat-card-value">{% if conversion_funnel.view_to_cart %}{{ conversion_funnel.view_to_cart }}%{% else %}N/A{% endif %}</div>
+                <div class="stat-card-label">View → Cart</div>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #28a745;">
+                <div class="stat-card-value">{% if conversion_funnel.cart_to_order %}{{ conversion_funnel.cart_to_order }}%{% else %}N/A{% endif %}</div>
+                <div class="stat-card-label">Cart → Order</div>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #be8400;">
+                <div class="stat-card-value">{% if conversion_funnel.view_to_order %}{{ conversion_funnel.view_to_order }}%{% else %}N/A{% endif %}</div>
+                <div class="stat-card-label">View → Order</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Top Customers -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">Top Customers</div>
+        <div style="padding: 1.5rem;">
+            {% if top_customers %}
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #e0e0e0;">
+                        <th style="padding: 0.75rem; text-align: left;">Customer</th>
+                        <th style="padding: 0.75rem; text-align: right;">Orders</th>
+                        <th style="padding: 0.75rem; text-align: right;">Revenue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for customer in top_customers %}
+                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                        <td style="padding: 0.75rem;">{{ customer.customer }}</td>
+                        <td style="padding: 0.75rem; text-align: right;">{{ customer.orders }}</td>
+                        <td style="padding: 0.75rem; text-align: right;">${{ customer.revenue|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="color: #666;">No customer sales yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

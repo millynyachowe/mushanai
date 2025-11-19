@@ -1,0 +1,288 @@
+{% extends 'base.html' %}
+{% load product_tags %}
+
+{% block title %}Customer Portal - Mushanai{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="margin-bottom: 2rem;">
+        <h1 style="font-size: 2.5rem; color: #000000; margin-bottom: 0.5rem;">Welcome, {{ user.first_name|default:user.username }}!</h1>
+        <p style="color: #666;">Track your impact, view your orders, and discover new products</p>
+    </div>
+    
+    <!-- Impact Metrics -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-card-value">${{ impact_metrics.total_spent|floatformat:2 }}</div>
+            <div class="stat-card-label">Total Spent</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-card-value">{{ impact_metrics.total_orders }}</div>
+            <div class="stat-card-label">Total Orders</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-card-value">${{ impact_metrics.total_project_contributions|floatformat:2 }}</div>
+            <div class="stat-card-label">Project Contributions</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-card-value">{{ impact_metrics.projects_supported_count }}</div>
+            <div class="stat-card-label">Projects Supported</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-card-value">{{ impact_metrics.local_brand_purchases }}</div>
+            <div class="stat-card-label">Local Brand Purchases</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-card-value">{{ impact_metrics.total_items_purchased }}</div>
+            <div class="stat-card-label">Items Purchased</div>
+        </div>
+        
+        <div class="stat-card" style="border-left-color: {% if current_level %}{{ current_level.color }}{% else %}#be8400{% endif %};">
+            <div class="stat-card-value">
+                {% if current_level %}
+                    {{ current_level.display_name }}
+                {% else %}
+                    Rising Star
+                {% endif %}
+            </div>
+            <div class="stat-card-label">Impact Level</div>
+            <div style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">
+                {{ impact_metrics.impact_points }} pts
+                {% if next_level and points_to_next_level %}
+                    · {{ points_to_next_level }} pts to {{ next_level.display_name }}
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-card-value">{{ impact_metrics.total_badges_earned }}</div>
+            <div class="stat-card-label">Badges Earned</div>
+            <div style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">
+                <a href="{% url 'gamification_dashboard' %}" style="color: #be8400; text-decoration: none;">View achievements →</a>
+            </div>
+        </div>
+    </div>
+    
+    {% if recent_achievements %}
+    <div class="card" style="margin-top: 2rem;">
+        <div class="card-header">Recent Achievements</div>
+        <div style="display: flex; flex-wrap: wrap; gap: 1rem; padding: 1.5rem;">
+            {% for achievement in recent_achievements %}
+            <div style="flex: 1 1 220px; border: 1px solid #e0e0e0; border-radius: 8px; padding: 1rem; background-color: #f8f8f8;">
+                <div style="font-weight: bold; color: #000000; margin-bottom: 0.5rem;">{{ achievement.badge.name }}</div>
+                <div style="color: #666; font-size: 0.9rem; margin-bottom: 0.5rem;">{{ achievement.badge.description }}</div>
+                {% if achievement.earned_at %}
+                <div style="color: #2e7d32; font-size: 0.85rem;">Earned {{ achievement.earned_at|date:"F d, Y" }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Projects You've Supported -->
+    <div class="card" style="margin-top: 2rem;">
+        <div class="card-header">Projects You've Supported</div>
+        {% if voted_projects %}
+        <div style="margin-top: 1rem;">
+            {% for project in voted_projects %}
+            <div style="padding: 1rem; border-bottom: 1px solid #e0e0e0;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h4 style="margin-bottom: 0.5rem; color: #000000;">
+                            <a href="{% url 'project_detail' project.slug %}" style="color: #be8400; text-decoration: none;">{{ project.title }}</a>
+                        </h4>
+                        <p style="color: #666; font-size: 0.9rem;">Progress: {{ project.funding_percentage|floatformat:1 }}%</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="width: 100px; height: 6px; background-color: #e0e0e0; border-radius: 3px; overflow: hidden; margin-bottom: 0.5rem;">
+                            <div style="width: {{ project.funding_percentage }}%; height: 100%; background-color: #be8400;"></div>
+                        </div>
+                        <span style="color: #666; font-size: 0.9rem;">${{ project.current_funding|floatformat:2 }} / ${{ project.target_amount|floatformat:2 }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div style="margin-top: 1rem; text-align: center;">
+            <a href="{% url 'customer_my_projects' %}" class="btn btn-outline">View All Projects</a>
+        </div>
+        {% else %}
+        <p style="text-align: center; color: #666; padding: 2rem;">
+            You haven't supported any projects yet. <a href="{% url 'project_list' %}" style="color: #be8400;">Browse projects</a> to get started!
+        </p>
+        {% endif %}
+    </div>
+    
+    <!-- Recent Orders -->
+    <div class="card" style="margin-top: 2rem;">
+        <div class="card-header">Recent Orders</div>
+        {% if orders %}
+        <div style="margin-top: 1rem;">
+            {% for order in orders %}
+            <div style="padding: 1rem; border-bottom: 1px solid #e0e0e0;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h4 style="margin-bottom: 0.5rem; color: #000000;">Order {{ order.order_number }}</h4>
+                        <p style="color: #666; font-size: 0.9rem;">{{ order.created_at|date:"F d, Y" }} - Status: {{ order.get_status_display }}</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 1.2rem; font-weight: bold; color: #be8400;">${{ order.total|floatformat:2 }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div style="margin-top: 1rem; text-align: center;">
+            <a href="{% url 'customer_orders' %}" class="btn btn-outline">View All Orders</a>
+        </div>
+        {% else %}
+        <p style="text-align: center; color: #666; padding: 2rem;">No orders yet. <a href="{% url 'home' %}" style="color: #be8400;">Start shopping</a>!</p>
+        {% endif %}
+    </div>
+    
+    <!-- Personalized Recommendations -->
+    {% if personalized_recommendations %}
+    <div class="card" style="margin-top: 2rem;">
+        <div class="card-header">Recommended for You</div>
+        <div class="grid" style="margin-top: 1rem;">
+            {% for product in personalized_recommendations %}
+            <div class="product-card">
+                <a href="{% url 'product_detail' product.slug %}" style="text-decoration: none; color: inherit;">
+                    {% if product.primary_image %}
+                        <img src="{{ product.primary_image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                        <div style="width: 100%; height: 200px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #999;">
+                            No Image
+                        </div>
+                    {% endif %}
+                    <div class="product-card-body">
+                        <div class="product-card-title">{{ product.name }}</div>
+                        <div class="product-card-vendor">
+                            By:
+                            {% if product.has_vendor_account %}
+                                <a href="{% url 'vendor_profile_public' product.vendor.id %}" style="color: #be8400; text-decoration: none;">{{ product.vendor_display_name }}</a>
+                            {% else %}
+                                {{ product.vendor_display_name }}
+                            {% endif %}
+                        </div>
+                        {% if product.avg_rating %}
+                            <div style="margin: 0.5rem 0; font-size: 0.9rem;">
+                                <span style="color: #be8400;">{{ product.avg_rating|stars }}</span>
+                                <span style="color: #666; margin-left: 0.5rem;">{{ product.avg_rating|floatformat:1 }}</span>
+                            </div>
+                        {% endif %}
+                        <div class="product-card-price">${{ product.price }}</div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Recently Viewed -->
+    {% if recently_viewed %}
+    <div class="card" style="margin-top: 2rem;">
+        <div class="card-header">Recently Viewed</div>
+        <div class="grid" style="margin-top: 1rem;">
+            {% for product in recently_viewed %}
+            <div class="product-card">
+                <a href="{% url 'product_detail' product.slug %}" style="text-decoration: none; color: inherit;">
+                    {% if product.primary_image %}
+                        <img src="{{ product.primary_image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                        <div style="width: 100%; height: 200px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #999;">
+                            No Image
+                        </div>
+                    {% endif %}
+                    <div class="product-card-body">
+                        <div class="product-card-title">{{ product.name }}</div>
+                        <div class="product-card-vendor">
+                            By:
+                            {% if product.has_vendor_account %}
+                                <a href="{% url 'vendor_profile_public' product.vendor.id %}" style="color: #be8400; text-decoration: none;">{{ product.vendor_display_name }}</a>
+                            {% else %}
+                                {{ product.vendor_display_name }}
+                            {% endif %}
+                        </div>
+                        <div class="product-card-price">${{ product.price }}</div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Trending Products -->
+    {% if trending_products %}
+    <div class="card" style="margin-top: 2rem;">
+        <div class="card-header">Trending Now</div>
+        <div class="grid" style="margin-top: 1rem;">
+            {% for product in trending_products %}
+            <div class="product-card">
+                <a href="{% url 'product_detail' product.slug %}" style="text-decoration: none; color: inherit;">
+                    {% if product.primary_image %}
+                        <img src="{{ product.primary_image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                        <div style="width: 100%; height: 200px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #999;">
+                            No Image
+                        </div>
+                    {% endif %}
+                    <div class="product-card-body">
+                        <div class="product-card-title">{{ product.name }}</div>
+                        <div class="product-card-vendor">
+                            By:
+                            {% if product.has_vendor_account %}
+                                <a href="{% url 'vendor_profile_public' product.vendor.id %}" style="color: #be8400; text-decoration: none;">{{ product.vendor_display_name }}</a>
+                            {% else %}
+                                {{ product.vendor_display_name }}
+                            {% endif %}
+                        </div>
+                        <div class="product-card-price">${{ product.price }}</div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Brand Stories -->
+    {% if brands %}
+    <div class="card" style="margin-top: 2rem;">
+        <div class="card-header">Brand Stories</div>
+        <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); margin-top: 1rem;">
+            {% for brand in brands %}
+            <div style="padding: 1rem; border: 1px solid #e0e0e0; border-radius: 8px;">
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                    {% if brand.logo %}
+                        <img src="{{ brand.logo.url }}" alt="{{ brand.company_name }}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+                    {% endif %}
+                    <div>
+                        <h4 style="color: #000000; margin-bottom: 0.25rem;">{{ brand.company_name }}</h4>
+                        {% if brand.business_type %}
+                            <p style="color: #666; font-size: 0.9rem;">{{ brand.business_type }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if brand.description %}
+                    <p style="color: #666; font-size: 0.9rem; line-height: 1.6;">{{ brand.description|truncatewords:30 }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        <div style="margin-top: 1rem; text-align: center;">
+            <a href="{% url 'brand_stories' %}" class="btn btn-outline">View All Brand Stories</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

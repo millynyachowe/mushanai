@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Product - Mushanai{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 800px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <h1 style="font-size: 2rem; color: #000000; margin: 0;">Add New Product</h1>
+        <a href="{% url 'vendor_dashboard' %}" class="btn btn-outline" style="padding: 0.4rem 0.9rem;">← Back to Dashboard</a>
+    </div>
+    
+    <div class="card">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="name">Product Name *</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="slug">URL Slug (auto-generated from name, or customize)</label>
+                <input type="text" id="slug" name="slug" placeholder="product-url-slug">
+            </div>
+            
+            <div class="form-group">
+                <label for="short_description">Short Description</label>
+                <input type="text" id="short_description" name="short_description" maxlength="300" placeholder="Brief description (max 300 characters)">
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Full Description *</label>
+                <textarea id="description" name="description" rows="6" required></textarea>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label for="category">Category * <small style="color: #666;">(Required)</small></label>
+                    <select id="category" name="category" required>
+                        <option value="">Select a category *</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.name }}{% if category.display_header %} - {{ category.display_header }}{% endif %}</option>
+                        {% endfor %}
+                    </select>
+                    <small style="color: #666;">Every product must have a category. This determines where it appears on the homepage.</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="brand">Brand <small style="color: #666;">(Optional)</small></label>
+                    <select id="brand" name="brand">
+                        <option value="">Select a brand</option>
+                        {% for brand in brands %}
+                            <option value="{{ brand.id }}">{{ brand.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="tags">Tags <small style="color: #666;">(Optional - Select multiple)</small></label>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.75rem; margin-top: 0.5rem;">
+                    {% for tag in tags %}
+                    <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border: 1px solid #e0e0e0; border-radius: 4px; background-color: #f8f8f8; cursor: pointer;">
+                        <input type="checkbox" name="tags" value="{{ tag.id }}">
+                        <span style="font-size: 0.9rem;">{{ tag.name }}</span>
+                    </label>
+                    {% empty %}
+                    <p style="color: #666; font-size: 0.9rem; grid-column: 1 / -1;">No tags available. Admin will create tags that you can use.</p>
+                    {% endfor %}
+                </div>
+                <small style="color: #666; display: block; margin-top: 0.5rem;">Tags help customers find your products. Select all that apply.</small>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label for="price">Price *</label>
+                    <input type="number" id="price" name="price" step="0.01" min="0" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="compare_at_price">Compare At Price (Original Price)</label>
+                    <input type="number" id="compare_at_price" name="compare_at_price" step="0.01" min="0">
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label for="sku">SKU</label>
+                    <input type="text" id="sku" name="sku" placeholder="Product SKU">
+                </div>
+                
+                <div class="form-group">
+                    <label for="stock_quantity">Stock Quantity</label>
+                    <input type="number" id="stock_quantity" name="stock_quantity" min="0" value="0">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="primary_image">Product Image</label>
+                <input type="file" id="primary_image" name="primary_image" accept="image/*">
+            </div>
+            
+            <div style="margin-top: 1.5rem;">
+                <h3 style="font-size: 1.1rem; color: #000000; margin-bottom: 0.75rem;">Product Options</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+                    <label style="display: flex; align-items: center; gap: 0.6rem; padding: 0.9rem; border: 1px solid #e0e0e0; border-radius: 6px; background-color: #f8f8f8;">
+                        <input type="checkbox" name="track_inventory" checked>
+                        <span>Track inventory</span>
+                    </label>
+                    
+                    <label style="display: flex; align-items: center; gap: 0.6rem; padding: 0.9rem; border: 1px solid #e0e0e0; border-radius: 6px; background-color: #f8f8f8;">
+                        <input type="checkbox" name="is_active" checked>
+                        <span>Product is active (visible to customers)</span>
+                    </label>
+                    
+                    <label style="display: flex; align-items: center; gap: 0.6rem; padding: 0.9rem; border: 1px solid #e0e0e0; border-radius: 6px; background-color: #f8f8f8;">
+                        <input type="checkbox" name="is_made_from_local_materials">
+                        <span>Made from local materials</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button type="submit" class="btn btn-primary">Create Product</button>
+                <a href="{% url 'vendor_product_list' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

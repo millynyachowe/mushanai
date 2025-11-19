@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}My Orders - Mushanai{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 style="font-size: 2rem; margin-bottom: 2rem; color: #000000;">My Orders</h1>
+    
+    {% if orders %}
+    <div class="card">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 2px solid #e0e0e0;">
+                    <th style="padding: 1rem; text-align: left;">Order Number</th>
+                    <th style="padding: 1rem; text-align: left;">Date</th>
+                    <th style="padding: 1rem; text-align: left;">Status</th>
+                    <th style="padding: 1rem; text-align: left;">Payment</th>
+                    <th style="padding: 1rem; text-align: left;">Total</th>
+                    <th style="padding: 1rem; text-align: left;">Project</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr style="border-bottom: 1px solid #e0e0e0;">
+                    <td style="padding: 1rem;">
+                        <strong>{{ order.order_number }}</strong>
+                    </td>
+                    <td style="padding: 1rem;">{{ order.created_at|date:"M d, Y" }}</td>
+                    <td style="padding: 1rem;">{{ order.get_status_display }}</td>
+                    <td style="padding: 1rem;">{{ order.get_payment_status_display }}</td>
+                    <td style="padding: 1rem; font-weight: bold; color: #be8400;">${{ order.total|floatformat:2 }}</td>
+                    <td style="padding: 1rem;">
+                        {% if order.selected_project %}
+                            <a href="{% url 'project_detail' order.selected_project.slug %}" style="color: #be8400; text-decoration: none;">
+                                {{ order.selected_project.title }}
+                            </a>
+                        {% else %}
+                            <span style="color: #999;">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="card" style="text-align: center; padding: 3rem;">
+        <p style="color: #666; margin-bottom: 1.5rem;">You haven't placed any orders yet.</p>
+        <a href="{% url 'home' %}" class="btn btn-primary">Start Shopping</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

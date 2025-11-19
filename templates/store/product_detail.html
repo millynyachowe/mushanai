@@ -1,0 +1,1026 @@
+{% extends 'base.html' %}
+{% load product_tags %}
+
+{% block title %}{{ product.name }} - Mushanai{% endblock %}
+
+{% block extra_css %}
+<style>
+    .product-detail-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+    
+    .product-main {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        margin-bottom: 3rem;
+    }
+    
+    .product-images {
+        position: sticky;
+        top: 2rem;
+        height: fit-content;
+    }
+    
+    .product-image-main {
+        width: 100%;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+    
+    .product-info {
+        position: sticky;
+        top: 2rem;
+        height: fit-content;
+        align-self: start;
+    }
+    
+    .product-info h1 {
+        font-size: 2.5rem;
+        color: #000000;
+        margin-bottom: 1rem;
+    }
+    
+    .product-vendor {
+        color: #666;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .product-rating {
+        margin: 1rem 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .product-price {
+        font-size: 2rem;
+        color: #be8400;
+        font-weight: bold;
+        margin: 1.5rem 0;
+    }
+    
+    .product-description {
+        margin: 2rem 0;
+        line-height: 1.8;
+        color: #333;
+    }
+    
+    .product-actions {
+        margin: 2rem 0;
+    }
+    
+    .recommendations-section {
+        margin: 4rem 0;
+    }
+    
+    .recommendations-section h2 {
+        font-size: 1.8rem;
+        color: #000000;
+        margin-bottom: 1.5rem;
+        border-bottom: 3px solid #be8400;
+        padding-bottom: 0.5rem;
+    }
+    
+    .reviews-section {
+        margin: 3rem 0;
+    }
+    
+    .review-item {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        background-color: #ffffff;
+    }
+    
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.5rem;
+    }
+    
+    .review-rating {
+        color: #be8400;
+        margin: 0.5rem 0;
+    }
+    
+    .review-author {
+        font-weight: bold;
+        color: #000000;
+    }
+    
+    .review-date {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .review-photos {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 0.5rem;
+        margin: 1rem 0;
+    }
+    
+    .review-photo {
+        width: 100%;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .vendor-response {
+        background-color: #f8f8f8;
+        border-left: 4px solid #be8400;
+        padding: 1rem;
+        margin-top: 1rem;
+        border-radius: 4px;
+    }
+    
+    .vendor-response-header {
+        font-weight: bold;
+        color: #000000;
+        margin-bottom: 0.5rem;
+    }
+    
+    .vendor-response-date {
+        color: #666;
+        font-size: 0.85rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .review-form {
+        background-color: #f8f8f8;
+        padding: 2rem;
+        border-radius: 8px;
+        margin: 2rem 0;
+    }
+    
+    .review-form h3 {
+        margin-bottom: 1.5rem;
+        color: #000000;
+    }
+    
+    .rating-input {
+        display: flex;
+        gap: 0.5rem;
+        margin: 1rem 0;
+    }
+    
+    .rating-input input[type="radio"] {
+        display: none;
+    }
+    
+    .rating-input label {
+        font-size: 2rem;
+        color: #ddd;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    
+    .rating-input label:hover {
+        color: #be8400;
+        transform: scale(1.1);
+    }
+    
+    .rating-input input[type="radio"]:checked + label,
+    .rating-input input[type="radio"]:checked ~ label {
+        color: #be8400;
+    }
+    
+    /* Style checked state and all previous stars */
+    .rating-input input[type="radio"]:checked ~ label {
+        color: #be8400;
+    }
+    
+    .helpful-button {
+        background-color: transparent;
+        border: 1px solid #e0e0e0;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        color: #666;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+    
+    .helpful-button:hover {
+        background-color: #f0f0f0;
+        border-color: #be8400;
+    }
+    
+    .helpful-count {
+        color: #666;
+        font-size: 0.85rem;
+        margin-left: 0.5rem;
+    }
+    
+    .verified-badge {
+        display: inline-block;
+        background-color: #be8400;
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        margin-left: 0.5rem;
+    }
+    
+    @media (max-width: 768px) {
+        .product-main {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="product-detail-container">
+    <div class="product-main">
+        <!-- Product Images -->
+        <div class="product-images">
+            {% if product.primary_image %}
+                <img src="{{ product.primary_image.url }}" alt="{{ product.name }}" class="product-image-main">
+            {% else %}
+                <div style="width: 100%; height: 400px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+                    <span style="color: #999;">No Image</span>
+                </div>
+            {% endif %}
+            
+            {% if product.images.exists %}
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;">
+                {% for image in product.images.all|slice:":4" %}
+                <img src="{{ image.image.url }}" alt="{{ image.alt_text|default:product.name }}" style="width: 100%; border-radius: 4px; cursor: pointer;">
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Product Info -->
+        <div class="product-info">
+            <h1>{{ product.name }}</h1>
+            <div class="product-vendor" style="margin-bottom: 1rem;">
+                {% if product.has_vendor_account %}
+                <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
+                    <span>By: <a href="{% url 'vendor_profile_public' product.vendor.id %}" style="color: #be8400; font-weight: bold; text-decoration: none;">{{ product.vendor_display_name }}</a></span>
+                    {% if vendor_profile %}
+                        {% if vendor_profile.is_verified %}
+                        <span style="display: inline-block; background-color: #be8400; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">✓ Verified</span>
+                        {% endif %}
+                        {% if vendor_profile.overall_rating > 0 %}
+                        <span style="display: flex; align-items: center; gap: 0.25rem;">
+                            <span style="color: #be8400;">⭐</span>
+                            <span style="font-weight: bold;">{{ vendor_profile.overall_rating|floatformat:1 }}</span>
+                            <span style="color: #666; font-size: 0.9rem;">({{ vendor_profile.total_reviews }})</span>
+                        </span>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                {% if vendor_profile and vendor_profile.badges.exists %}
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem;">
+                    {% for badge in vendor_profile.badges.all %}
+                    <span style="display: inline-block; background-color: {{ badge.color }}; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: bold; cursor: help;" title="{{ badge.description }}">
+                        {% if badge.icon %}{{ badge.icon }} {% endif %}{{ badge.name }}
+                    </span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if vendor_profile and vendor_profile.average_response_time_hours %}
+                <div style="font-size: 0.85rem; color: #666;">
+                    ⚡ Average response time: {{ vendor_profile.response_time_display }}
+                </div>
+                {% endif %}
+                {% else %}
+                <div style="background-color: #f8f8f8; border-radius: 8px; padding: 1rem;">
+                    <h3 style="margin-bottom: 0.5rem; color: #000000;">Local Brand</h3>
+                    <p style="margin: 0; font-size: 0.95rem; color: #333;">{{ product.vendor_display_name }}</p>
+                    {% if offline_vendor.phone %}
+                    <p style="margin: 0.25rem 0; font-size: 0.9rem; color: #666;">📞 {{ offline_vendor.phone }}</p>
+                    {% endif %}
+                    {% if offline_vendor.address %}
+                    <p style="margin: 0.25rem 0; font-size: 0.9rem; color: #666;">📍 {{ offline_vendor.address }}</p>
+                    {% endif %}
+                    <p style="margin-top: 0.5rem; color: #999; font-size: 0.85rem;">Listed by Mushanai on behalf of this local brand.</p>
+                </div>
+                {% endif %}
+            </div>
+            
+            {% if product.avg_rating %}
+            <div class="product-rating">
+                <span style="color: #be8400; font-size: 1.5rem;">{{ product.avg_rating|stars }}</span>
+                <span style="color: #666;">{{ product.avg_rating|floatformat:1 }} ({{ product.review_count }} review{{ product.review_count|pluralize }})</span>
+            </div>
+            {% endif %}
+            
+            <div class="product-price">${{ product.price }}</div>
+            
+            {% if product.compare_at_price and product.compare_at_price > product.price %}
+            <div style="color: #999; text-decoration: line-through; margin-bottom: 0.5rem;">
+                Was: ${{ product.compare_at_price }}
+            </div>
+            {% endif %}
+            
+            {% if product.is_made_from_local_materials %}
+            <div style="display: inline-block; background-color: #be8400; color: white; padding: 0.5rem 1rem; border-radius: 4px; margin: 1rem 0;">
+                ✓ Made from Local Materials
+            </div>
+            {% endif %}
+            
+            <div class="product-description">
+                {{ product.description|linebreaks }}
+            </div>
+            
+            {% if product.short_description %}
+            <p style="color: #666; font-size: 1.1rem; margin: 1rem 0;">{{ product.short_description }}</p>
+            {% endif %}
+            
+            <!-- Purchase Section (Etsy-style) -->
+            <div class="product-actions" style="background-color: #f8f8f8; border-radius: 8px; padding: 2rem; margin: 2rem 0; border: 1px solid #e0e0e0;">
+                {% if product.is_in_stock %}
+                    <div style="margin-bottom: 1.5rem;">
+                        <label for="quantity" style="display: block; font-weight: bold; margin-bottom: 0.5rem; color: #000000;">Quantity</label>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <button type="button" onclick="decreaseQuantity()" style="width: 40px; height: 40px; border: 2px solid #e0e0e0; background-color: white; border-radius: 4px; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;">-</button>
+                            <input type="number" id="quantity" name="quantity" value="1" min="1" max="{% if product.track_inventory %}{{ product.stock_quantity }}{% else %}999{% endif %}" 
+                                   style="width: 80px; padding: 0.5rem; border: 2px solid #e0e0e0; border-radius: 4px; text-align: center; font-size: 1.1rem; font-weight: bold;">
+                            <button type="button" onclick="increaseQuantity()" style="width: 40px; height: 40px; border: 2px solid #e0e0e0; background-color: white; border-radius: 4px; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;">+</button>
+                            {% if product.track_inventory %}
+                            <span style="color: #666; font-size: 0.9rem;">({{ product.stock_quantity }} available)</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if request.user.is_authenticated and request.user.user_type == 'CUSTOMER' %}
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <button onclick="addToCart({{ product.id }})" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.1rem; cursor: pointer; width: 100%; font-weight: bold;" id="add-to-cart-btn">
+                            Add to Cart
+                        </button>
+                        <button onclick="buyNow({{ product.id }})" class="btn" style="padding: 1rem 2rem; font-size: 1.1rem; text-align: center; background-color: #000000; color: white; border: 2px solid #000000; border-radius: 4px; font-weight: bold; width: 100%; cursor: pointer;">
+                            Buy Now
+                        </button>
+                    </div>
+                    {% else %}
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <a href="{% url 'login' %}?next={% url 'product_detail' product.slug %}" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.1rem; text-decoration: none; display: inline-block; text-align: center; font-weight: bold; width: 100%;">
+                            Login to Add to Cart
+                        </a>
+                        <a href="{% url 'login' %}?next={% url 'checkout' %}" class="btn" style="padding: 1rem 2rem; font-size: 1.1rem; text-decoration: none; display: inline-block; text-align: center; background-color: #000000; color: white; border: 2px solid #000000; border-radius: 4px; font-weight: bold; width: 100%;">
+                            Login to Buy Now
+                        </a>
+                    </div>
+                    {% endif %}
+                {% else %}
+                    <div style="text-align: center; padding: 1rem;">
+                        <button class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.1rem; width: 100%;" disabled>
+                            Out of Stock
+                        </button>
+                        <p style="color: #666; margin-top: 0.5rem; font-size: 0.9rem;">This product is currently unavailable</p>
+                    </div>
+                {% endif %}
+                {% if request.user.is_authenticated and request.user.user_type == 'CUSTOMER' %}
+                <div style="display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap;">
+                    <button onclick="addToWishlist(this, {{ product.id }})" class="btn" style="padding: 0.75rem 1.5rem; font-size: 1rem; background-color: #f8f8f8; color: #000000; border: 2px solid #e0e0e0; border-radius: 4px; cursor: pointer;">
+                        <span>❤️</span> Add to Wishlist
+                    </button>
+                    <a href="{% url 'price_alert_create' product.id %}" class="btn" style="padding: 0.75rem 1.5rem; font-size: 1rem; background-color: #f8f8f8; color: #000000; border: 2px solid #e0e0e0; border-radius: 4px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+                        <span>🔔</span> Price Alert
+                    </a>
+                    {% if show_back_in_stock %}
+                        {% if back_in_stock_alert and back_in_stock_alert.status == 'ACTIVE' %}
+                        <button class="btn" style="padding: 0.75rem 1.5rem; font-size: 1rem; background-color: #e8f5e9; color: #2e7d32; border: 2px solid #4caf50; border-radius: 4px;" disabled>
+                            <span>📦</span> Back-in-stock alert active
+                        </button>
+                        {% else %}
+                        <button onclick="subscribeBackInStock(this, {{ product.id }})" class="btn" style="padding: 0.75rem 1.5rem; font-size: 1rem; background-color: #f8f8f8; color: #000000; border: 2px solid #e0e0e0; border-radius: 4px; cursor: pointer;">
+                            <span>📦</span> Notify when in stock
+                        </button>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            
+            {% if share_data %}
+            <div class="social-sharing" style="margin: 2rem 0; padding: 1rem; background-color: #f8f8f8; border-radius: 8px;">
+                <h3 style="margin-bottom: 1rem; color: #000000; font-size: 1.1rem;">Share this product</h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                    <a href="{{ share_data.facebook }}" target="_blank" rel="noopener noreferrer" 
+                       class="social-share-btn" data-platform="FACEBOOK" data-share-type="PRODUCT" data-object-id="{{ product.id }}"
+                       style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #1877f2; color: white; text-decoration: none; border-radius: 4px; font-size: 0.9rem;">
+                        <span>📘</span> Facebook
+                    </a>
+                    <a href="{{ share_data.twitter }}" target="_blank" rel="noopener noreferrer"
+                       class="social-share-btn" data-platform="TWITTER" data-share-type="PRODUCT" data-object-id="{{ product.id }}"
+                       style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #1da1f2; color: white; text-decoration: none; border-radius: 4px; font-size: 0.9rem;">
+                        <span>🐦</span> Twitter
+                    </a>
+                    <a href="{{ share_data.whatsapp }}" target="_blank" rel="noopener noreferrer"
+                       class="social-share-btn" data-platform="WHATSAPP" data-share-type="PRODUCT" data-object-id="{{ product.id }}"
+                       style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #25d366; color: white; text-decoration: none; border-radius: 4px; font-size: 0.9rem;">
+                        <span>💬</span> WhatsApp
+                    </a>
+                    <a href="{{ share_data.linkedin }}" target="_blank" rel="noopener noreferrer"
+                       class="social-share-btn" data-platform="LINKEDIN" data-share-type="PRODUCT" data-object-id="{{ product.id }}"
+                       style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #0077b5; color: white; text-decoration: none; border-radius: 4px; font-size: 0.9rem;">
+                        <span>💼</span> LinkedIn
+                    </a>
+                    <a href="{{ share_data.email }}" 
+                       class="social-share-btn" data-platform="EMAIL" data-share-type="PRODUCT" data-object-id="{{ product.id }}"
+                       style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #666; color: white; text-decoration: none; border-radius: 4px; font-size: 0.9rem;">
+                        <span>✉️</span> Email
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div style="margin-top: 2rem; padding: 1rem; background-color: #f8f8f8; border-radius: 8px;">
+                <h3 style="margin-bottom: 0.5rem; color: #000000;">Product Details</h3>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin: 0.5rem 0;"><strong>Category:</strong> {{ product.category.name|default:"N/A" }}</li>
+                    {% if product.brand %}
+                    <li style="margin: 0.5rem 0;"><strong>Brand:</strong> {{ product.brand.name }}</li>
+                    {% endif %}
+                    {% if product.sku %}
+                    <li style="margin: 0.5rem 0;"><strong>SKU:</strong> {{ product.sku }}</li>
+                    {% endif %}
+                    <li style="margin: 0.5rem 0;"><strong>Stock:</strong> 
+                        {% if product.is_in_stock %}
+                            <span style="color: green;">In Stock ({{ product.stock_quantity }} available)</span>
+                        {% else %}
+                            <span style="color: red;">Out of Stock</span>
+                        {% endif %}
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Review Form (for customers) -->
+    {% if user.is_authenticated and user.user_type == 'CUSTOMER' and can_review %}
+    <div class="review-form">
+        <h3>Write a Review</h3>
+        {% if has_purchased %}
+        <p style="color: #be8400; margin-bottom: 1rem;">✓ You purchased this product - your review will be marked as Verified Purchase</p>
+        {% else %}
+        <p style="color: #666; margin-bottom: 1rem;">Share your thoughts about this product</p>
+        {% endif %}
+        <form method="post" action="{% url 'submit_review' product.slug %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Rating *</label>
+                <div class="rating-input">
+                    <input type="radio" name="rating" value="5" id="rating5" required>
+                    <label for="rating5">⭐</label>
+                    <input type="radio" name="rating" value="4" id="rating4">
+                    <label for="rating4">⭐</label>
+                    <input type="radio" name="rating" value="3" id="rating3">
+                    <label for="rating3">⭐</label>
+                    <input type="radio" name="rating" value="2" id="rating2">
+                    <label for="rating2">⭐</label>
+                    <input type="radio" name="rating" value="1" id="rating1">
+                    <label for="rating1">⭐</label>
+                </div>
+                <small style="color: #666; display: block; margin-top: 0.5rem;">Click on a star to rate (1-5 stars)</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="title" style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Review Title (Optional)</label>
+                <input type="text" id="title" name="title" style="width: 100%; padding: 0.5rem; border: 2px solid #e0e0e0; border-radius: 4px;" maxlength="200" placeholder="Summarize your review">
+            </div>
+            
+            <div class="form-group">
+                <label for="comment" style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Your Review *</label>
+                <textarea id="comment" name="comment" rows="5" required style="width: 100%; padding: 0.5rem; border: 2px solid #e0e0e0; border-radius: 4px;" placeholder="Share your experience with this product..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="photos" style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Add Photos (Optional, up to 5)</label>
+                <input type="file" id="photos" name="photos" multiple accept="image/*" style="width: 100%; padding: 0.5rem; border: 2px solid #e0e0e0; border-radius: 4px;">
+                <small style="color: #666; display: block; margin-top: 0.5rem;">You can upload up to 5 photos with your review.</small>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Submit Review</button>
+        </form>
+    </div>
+    {% elif user.is_authenticated and user.user_type == 'CUSTOMER' and user_review %}
+    <div class="review-form" style="background-color: #fff3cd; border: 1px solid #ffc107;">
+        <p style="color: #856404; margin: 0;">
+            You have already reviewed this product. 
+            {% if user_review.is_approved %}
+                Your review is published below.
+            {% else %}
+                Your review is pending approval.
+            {% endif %}
+        </p>
+    </div>
+    {% endif %}
+    
+    <!-- Reviews Section -->
+    <div class="reviews-section">
+        <h2 style="font-size: 1.8rem; color: #000000; margin-bottom: 1.5rem; border-bottom: 3px solid #be8400; padding-bottom: 0.5rem;">
+            Customer Reviews ({{ product.review_count }})
+        </h2>
+        
+        {% if reviews %}
+        {% for review in reviews %}
+        <div class="review-item">
+            <div class="review-header">
+                <div>
+                    <span class="review-author">{{ review.customer.username }}</span>
+                    {% if review.is_verified_purchase %}
+                    <span class="verified-badge">✓ Verified Purchase</span>
+                    {% endif %}
+                </div>
+                <div class="review-date">{{ review.created_at|date:"F d, Y" }}</div>
+            </div>
+            <div class="review-rating">
+                {{ review.rating|stars }}
+            </div>
+            {% if review.title %}
+            <h4 style="margin: 0.5rem 0; color: #000000;">{{ review.title }}</h4>
+            {% endif %}
+            <p style="color: #333; margin-top: 0.5rem; line-height: 1.6;">{{ review.comment|linebreaks }}</p>
+            
+            <!-- Review Photos -->
+            {% if review.photos.exists %}
+            <div class="review-photos">
+                {% for photo in review.photos.all %}
+                <img src="{{ photo.image.url }}" alt="{{ photo.alt_text|default:review.product.name }}" class="review-photo" onclick="openImageModal('{{ photo.image.url }}')">
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- Helpful Button -->
+            <div style="margin-top: 1rem;">
+                <button class="helpful-button" onclick="markHelpful({{ review.id }})" id="helpful-btn-{{ review.id }}">
+                    👍 Helpful
+                    <span class="helpful-count" id="helpful-count-{{ review.id }}">({{ review.helpful_count }})</span>
+                </button>
+            </div>
+            
+            <!-- Vendor Response -->
+            {% if review.vendor_response %}
+            <div class="vendor-response">
+                <div class="vendor-response-header">Response from {{ review.product.vendor_display_name }}</div>
+                {% if review.vendor_response_date %}
+                <div class="vendor-response-date">{{ review.vendor_response_date|date:"F d, Y" }}</div>
+                {% endif %}
+                <p style="color: #333; margin: 0; line-height: 1.6;">{{ review.vendor_response|linebreaks }}</p>
+            </div>
+{% elif user.is_authenticated and user.user_type == 'VENDOR' and review.product.has_vendor_account and user == review.product.vendor %}
+            <!-- Vendor can add response -->
+            <div style="margin-top: 1rem; padding: 1rem; background-color: #f0f0f0; border-radius: 4px;">
+                <h4 style="margin-bottom: 0.5rem; color: #000000;">Respond to this review</h4>
+                <form method="post" action="{% url 'vendor_response' review.id %}">
+                    {% csrf_token %}
+                    <textarea name="response" rows="3" placeholder="Thank the customer for their feedback or address their concerns..." required style="width: 100%; padding: 0.5rem; border: 2px solid #e0e0e0; border-radius: 4px;"></textarea>
+                    <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem; padding: 0.5rem 1rem;">Post Response</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <p style="text-align: center; color: #666; padding: 2rem;">No reviews yet. Be the first to review this product!</p>
+        {% endif %}
+    </div>
+    
+    <!-- Customers Also Bought -->
+    {% if customers_also_bought %}
+    <div class="recommendations-section">
+        <h2>Customers Who Bought This Also Bought</h2>
+        <div class="grid">
+            {% for product in customers_also_bought %}
+            <div class="product-card">
+                <a href="{% url 'product_detail' product.slug %}">
+                    {% if product.primary_image %}
+                        <img src="{{ product.primary_image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                        <div style="width: 100%; height: 200px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #999;">
+                            No Image
+                        </div>
+                    {% endif %}
+                    <div class="product-card-body">
+                        <div class="product-card-title">{{ product.name }}</div>
+                        <div class="product-card-vendor">
+                            By:
+                            {% if product.has_vendor_account %}
+                                <a href="{% url 'vendor_profile_public' product.vendor.id %}" style="color: #be8400; text-decoration: none;">{{ product.vendor_display_name }}</a>
+                            {% else %}
+                                {{ product.vendor_display_name }}
+                            {% endif %}
+                        </div>
+                        {% if product.avg_rating %}
+                            <div style="margin: 0.5rem 0; font-size: 0.9rem;">
+                                <span style="color: #be8400;">{{ product.avg_rating|stars }}</span>
+                                <span style="color: #666; margin-left: 0.5rem;">{{ product.avg_rating|floatformat:1 }}</span>
+                            </div>
+                        {% endif %}
+                        <div class="product-card-price">${{ product.price }}</div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Similar Products -->
+    {% if similar_products %}
+    <div class="recommendations-section">
+        <h2>Inspired by Your Taste</h2>
+        <div class="grid">
+            {% for product in similar_products %}
+            <div class="product-card">
+                <a href="{% url 'product_detail' product.slug %}">
+                    {% if product.primary_image %}
+                        <img src="{{ product.primary_image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                        <div style="width: 100%; height: 200px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #999;">
+                            No Image
+                        </div>
+                    {% endif %}
+                    <div class="product-card-body">
+                        <div class="product-card-title">{{ product.name }}</div>
+                        <div class="product-card-vendor">
+                            By:
+                            {% if product.has_vendor_account %}
+                                <a href="{% url 'vendor_profile_public' product.vendor.id %}" style="color: #be8400; text-decoration: none;">{{ product.vendor_display_name }}</a>
+                            {% else %}
+                                {{ product.vendor_display_name }}
+                            {% endif %}
+                        </div>
+                        {% if product.avg_rating %}
+                            <div style="margin: 0.5rem 0; font-size: 0.9rem;">
+                                <span style="color: #be8400;">{{ product.avg_rating|stars }}</span>
+                                <span style="color: #666; margin-left: 0.5rem;">{{ product.avg_rating|floatformat:1 }}</span>
+                            </div>
+                        {% endif %}
+                        <div class="product-card-price">${{ product.price }}</div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Recently Viewed -->
+    {% if recently_viewed %}
+    <div class="recommendations-section">
+        <h2>Recently Viewed</h2>
+        <div class="grid">
+            {% for product in recently_viewed %}
+            <div class="product-card">
+                <a href="{% url 'product_detail' product.slug %}">
+                    {% if product.primary_image %}
+                        <img src="{{ product.primary_image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                        <div style="width: 100%; height: 200px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #999;">
+                            No Image
+                        </div>
+                    {% endif %}
+                    <div class="product-card-body">
+                        <div class="product-card-title">{{ product.name }}</div>
+                        <div class="product-card-vendor">
+                            By:
+                            {% if product.has_vendor_account %}
+                                <a href="{% url 'vendor_profile_public' product.vendor.id %}" style="color: #be8400; text-decoration: none;">{{ product.vendor_display_name }}</a>
+                            {% else %}
+                                {{ product.vendor_display_name }}
+                            {% endif %}
+                        </div>
+                        <div class="product-card-price">${{ product.price }}</div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Image Modal -->
+<div id="imageModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); cursor: pointer;" onclick="closeImageModal()">
+    <img id="modalImage" src="" alt="Review photo" style="margin: auto; display: block; max-width: 90%; max-height: 90%; margin-top: 5%;">
+</div>
+
+<script>
+function markHelpful(reviewId) {
+    // Get CSRF token from form or meta tag
+    let csrfToken = '';
+    const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (csrfInput) {
+        csrfToken = csrfInput.value;
+    } else {
+        // Try to get from meta tag
+        const metaTag = document.querySelector('meta[name=csrf-token]');
+        if (metaTag) {
+            csrfToken = metaTag.getAttribute('content');
+        }
+    }
+    
+    if (!csrfToken) {
+        // Try to get from cookies
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            const [name, value] = cookie.trim().split('=');
+            if (name === 'csrftoken') {
+                csrfToken = value;
+                break;
+            }
+        }
+    }
+    
+    fetch(`/review/${reviewId}/helpful/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+        },
+        credentials: 'same-origin',
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const btn = document.getElementById(`helpful-btn-${reviewId}`);
+            const count = document.getElementById(`helpful-count-${reviewId}`);
+            if (btn && count) {
+                btn.style.backgroundColor = '#be8400';
+                btn.style.color = 'white';
+                btn.style.borderColor = '#be8400';
+                btn.disabled = true;
+                btn.textContent = '👍 Helpful (' + data.helpful_count + ')';
+            }
+        } else if (data.error) {
+            alert(data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please refresh the page and try again.');
+    });
+}
+
+function openImageModal(imageUrl) {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    modal.style.display = 'block';
+    modalImg.src = imageUrl;
+}
+
+function closeImageModal() {
+    document.getElementById('imageModal').style.display = 'none';
+}
+
+function increaseQuantity() {
+    const qtyInput = document.getElementById('quantity');
+    const max = parseInt(qtyInput.getAttribute('max')) || 999;
+    const current = parseInt(qtyInput.value) || 1;
+    if (current < max) {
+        qtyInput.value = current + 1;
+    }
+}
+
+function decreaseQuantity() {
+    const qtyInput = document.getElementById('quantity');
+    const current = parseInt(qtyInput.value) || 1;
+    if (current > 1) {
+        qtyInput.value = current - 1;
+    }
+}
+
+function addToCart(productId) {
+    const btn = document.getElementById('add-to-cart-btn');
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Adding...';
+    
+    const quantity = parseInt(document.getElementById('quantity').value) || 1;
+    const csrfToken = getCsrfToken();
+    
+    fetch(`/cart/add/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        credentials: 'same-origin',
+        body: `quantity=${quantity}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            btn.textContent = '✓ Added to Cart!';
+            btn.style.backgroundColor = '#4caf50';
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.backgroundColor = '';
+                btn.disabled = false;
+            }, 2000);
+            
+            // Show success message
+            alert(data.message);
+            
+            // Optionally redirect to cart or update cart count in navbar
+            // window.location.href = '/cart/';
+        } else if (data.error) {
+            alert(data.error);
+            btn.disabled = false;
+            btn.textContent = originalText;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+        btn.disabled = false;
+        btn.textContent = originalText;
+    });
+}
+
+function buyNow(productId) {
+    const quantity = parseInt(document.getElementById('quantity').value) || 1;
+    const csrfToken = getCsrfToken();
+    
+    // First add to cart, then redirect to checkout
+    fetch(`/cart/add/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        credentials: 'same-origin',
+        body: `quantity=${quantity}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Redirect to checkout
+            window.location.href = '/checkout/';
+        } else if (data.error) {
+            alert(data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+    });
+}
+
+function getCsrfToken() {
+    let csrfToken = '';
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'csrftoken') {
+            csrfToken = value;
+            break;
+        }
+    }
+    
+    if (!csrfToken) {
+        alert('Please refresh the page and try again.');
+        return;
+    }
+    
+    return csrfToken;
+}
+
+function addToWishlist(button, productId) {
+    const csrfToken = getCsrfToken();
+    if (!csrfToken) {
+        return;
+    }
+    
+    fetch(`/customer/wishlist/add/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        credentials: 'same-origin',
+        body: ''
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            // Optionally update button state
+            if (button) {
+                button.style.backgroundColor = '#be8400';
+                button.style.color = 'white';
+                button.innerHTML = '<span>✓</span> Added to Wishlist';
+                button.disabled = true;
+            }
+        } else {
+            alert(data.message || 'Failed to add to wishlist.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+    });
+}
+
+function subscribeBackInStock(button, productId) {
+    const csrfToken = getCsrfToken();
+    if (!csrfToken) {
+        return;
+    }
+    
+    fetch(`/customer/notifications/back-in-stock/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        credentials: 'same-origin',
+        body: ''
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            if (button) {
+                button.style.backgroundColor = '#e8f5e9';
+                button.style.color = '#2e7d32';
+                button.style.borderColor = '#4caf50';
+                button.innerHTML = '<span>📦</span> Back-in-stock alert active';
+                button.disabled = true;
+            }
+        } else if (data.error) {
+            alert(data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+    });
+}
+
+// Close modal on ESC key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeImageModal();
+    }
+});
+
+// Rating input styling - update stars when clicked or hovered
+const ratingContainer = document.getElementById('rating-container');
+if (ratingContainer) {
+    const labels = ratingContainer.querySelectorAll('label');
+    const inputs = ratingContainer.querySelectorAll('input[type="radio"]');
+    
+    labels.forEach((label, index) => {
+        // Hover effect
+        label.addEventListener('mouseenter', function() {
+            const rating = parseInt(this.getAttribute('data-rating'));
+            labels.forEach((l, i) => {
+                const labelRating = parseInt(l.getAttribute('data-rating'));
+                if (labelRating <= rating) {
+                    l.style.color = '#be8400';
+                }
+            });
+        });
+        
+        // Reset on mouse leave (unless one is selected)
+        label.addEventListener('mouseleave', function() {
+            const checkedInput = ratingContainer.querySelector('input[type="radio"]:checked');
+            if (!checkedInput) {
+                labels.forEach(l => l.style.color = '#ddd');
+            } else {
+                updateRatingDisplay(parseInt(checkedInput.value));
+            }
+        });
+        
+        // Click handler
+        label.addEventListener('click', function() {
+            const rating = parseInt(this.getAttribute('data-rating'));
+            updateRatingDisplay(rating);
+        });
+    });
+    
+    // Update display when radio is changed
+    inputs.forEach(input => {
+        input.addEventListener('change', function() {
+            updateRatingDisplay(parseInt(this.value));
+        });
+    });
+    
+    function updateRatingDisplay(rating) {
+        labels.forEach(label => {
+            const labelRating = parseInt(label.getAttribute('data-rating'));
+            if (labelRating <= rating) {
+                label.style.color = '#be8400';
+            } else {
+                label.style.color = '#ddd';
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

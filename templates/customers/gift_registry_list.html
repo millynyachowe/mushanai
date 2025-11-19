@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}My Gift Registries - Mushanai{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 1200px; margin: 2rem auto; padding: 0 1rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1 style="font-size: 2.5rem; color: #000000;">My Gift Registries</h1>
+        <a href="{% url 'gift_registry_create' %}" class="btn btn-primary" style="padding: 0.75rem 2rem;">
+            + Create New Registry
+        </a>
+    </div>
+    
+    {% if registries %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+        {% for registry in registries %}
+        <div class="card" style="padding: 1.5rem; border: 1px solid #e0e0e0; border-radius: 8px;">
+            <div style="margin-bottom: 1rem;">
+                <h3 style="font-size: 1.3rem; color: #000000; margin-bottom: 0.5rem;">
+                    <a href="{% url 'gift_registry_detail' registry.id %}" style="color: #000000; text-decoration: none;">
+                        {{ registry.name }}
+                    </a>
+                </h3>
+                {% if registry.description %}
+                <p style="color: #666; font-size: 0.9rem; margin-bottom: 0.5rem;">{{ registry.description|truncatewords:15 }}</p>
+                {% endif %}
+                {% if registry.event_date %}
+                <p style="color: #666; font-size: 0.9rem; margin-bottom: 0.5rem;">📅 Event Date: {{ registry.event_date|date:"F d, Y" }}</p>
+                {% endif %}
+            </div>
+            
+            <div style="margin: 1rem 0; padding: 1rem; background-color: #f8f8f8; border-radius: 4px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span style="color: #666;">Items:</span>
+                    <span style="font-weight: bold; color: #000000;">{{ registry.item_count }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span style="color: #666;">Purchased:</span>
+                    <span style="font-weight: bold; color: #4caf50;">{{ registry.purchased_count }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span style="color: #666;">Total Value:</span>
+                    <span style="font-weight: bold; color: #be8400;">${{ registry.total_value|floatformat:2 }}</span>
+                </div>
+                <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid #e0e0e0;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                        <span style="color: #666; font-size: 0.9rem;">Progress:</span>
+                        <span style="font-weight: bold; color: #000000; font-size: 0.9rem;">{{ registry.completion_percentage|floatformat:1 }}%</span>
+                    </div>
+                    <div style="width: 100%; height: 8px; background-color: #e0e0e0; border-radius: 4px; overflow: hidden;">
+                        <div style="width: {{ registry.completion_percentage }}%; height: 100%; background-color: #4caf50; transition: width 0.3s;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                <a href="{% url 'gift_registry_detail' registry.id %}" class="btn btn-primary" style="flex: 1; text-align: center; padding: 0.5rem; text-decoration: none;">
+                    View
+                </a>
+                {% if registry.is_public %}
+                <button onclick="copyShareLink('{{ registry.share_token }}')" class="btn" style="flex: 1; padding: 0.5rem; background-color: #f8f8f8; color: #000000; border: 1px solid #e0e0e0; border-radius: 4px; cursor: pointer;">
+                    Share
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 3rem; background-color: #f8f8f8; border-radius: 8px;">
+        <p style="color: #666; font-size: 1.1rem; margin-bottom: 1rem;">You don't have any gift registries yet.</p>
+        <a href="{% url 'gift_registry_create' %}" class="btn btn-primary" style="padding: 0.75rem 2rem;">
+            Create Your First Gift Registry
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function copyShareLink(shareToken) {
+    const url = window.location.origin + '/customer/gift-registry/share/' + shareToken + '/';
+    navigator.clipboard.writeText(url).then(function() {
+        alert('Gift registry link copied to clipboard!');
+    }, function() {
+        const input = document.createElement('input');
+        input.value = url;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        alert('Gift registry link copied to clipboard!');
+    });
+}
+</script>
+{% endblock %}
+

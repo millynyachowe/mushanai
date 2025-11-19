@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Gift Registry - Mushanai{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 800px; margin: 2rem auto; padding: 0 1rem;">
+    <h1 style="font-size: 2.5rem; color: #000000; margin-bottom: 2rem;">Create Gift Registry</h1>
+    
+    <form method="post" style="background-color: #ffffff; padding: 2rem; border-radius: 8px; border: 1px solid #e0e0e0;">
+        {% csrf_token %}
+        
+        <div style="margin-bottom: 1.5rem;">
+            <label for="name" style="display: block; margin-bottom: 0.5rem; color: #000000; font-weight: bold;">Registry Name *</label>
+            <input type="text" id="name" name="name" required
+                   placeholder="e.g., Wedding Registry, Birthday Wishlist, etc."
+                   style="width: 100%; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 4px; font-size: 1rem;">
+        </div>
+        
+        <div style="margin-bottom: 1.5rem;">
+            <label for="description" style="display: block; margin-bottom: 0.5rem; color: #000000; font-weight: bold;">Description (Optional)</label>
+            <textarea id="description" name="description" rows="4"
+                      placeholder="Add a description for your gift registry..."
+                      style="width: 100%; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 4px; font-size: 1rem; font-family: inherit;"></textarea>
+        </div>
+        
+        <div style="margin-bottom: 1.5rem;">
+            <label for="event_date" style="display: block; margin-bottom: 0.5rem; color: #000000; font-weight: bold;">Event Date (Optional)</label>
+            <input type="date" id="event_date" name="event_date"
+                   style="width: 100%; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 4px; font-size: 1rem;">
+            <p style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">The date of your event (wedding, birthday, etc.)</p>
+        </div>
+        
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="checkbox" name="is_public" checked style="width: 20px; height: 20px;">
+                <span style="color: #000000;">Make this registry public (shareable)</span>
+            </label>
+            <p style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">Public registries can be shared with friends and family via a unique link.</p>
+        </div>
+        
+        <div style="background-color: #e3f2fd; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
+            <p style="color: #1976d2; margin: 0; font-size: 0.9rem;">💡 <strong>Tip:</strong> After creating your registry, you can add products from any product page. Share the link with friends and family so they can purchase items from your registry!</p>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem; font-size: 1rem;">
+                Create Registry
+            </button>
+            <a href="{% url 'gift_registry_list' %}" class="btn" style="padding: 0.75rem 2rem; font-size: 1rem; background-color: #e0e0e0; color: #000000; text-decoration: none; border-radius: 4px;">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+

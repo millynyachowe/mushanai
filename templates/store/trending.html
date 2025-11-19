@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load product_tags %}
+
+{% block title %}Trending Products - Mushanai{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="text-align: center; margin: 3rem 0;">
+        <h1 style="font-size: 3rem; color: #000000; margin-bottom: 1rem;">Trending Products</h1>
+        <p style="font-size: 1.25rem; color: #666666;">Discover what's popular right now</p>
+    </div>
+    
+    {% if trending_products %}
+    <div class="grid">
+        {% for product in trending_products %}
+        <div class="product-card">
+            {% if product.primary_image %}
+                <img src="{{ product.primary_image.url }}" alt="{{ product.name }}">
+            {% else %}
+                <div style="width: 100%; height: 200px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #999;">
+                    No Image
+                </div>
+            {% endif %}
+            <div class="product-card-body">
+                <div class="product-card-title">{{ product.name }}</div>
+                <div class="product-card-vendor">
+                    By:
+                    {% if product.has_vendor_account %}
+                        <a href="{% url 'vendor_profile_public' product.vendor.id %}" style="color: #be8400; text-decoration: none;">{{ product.vendor_display_name }}</a>
+                    {% else %}
+                        {{ product.vendor_display_name }}
+                    {% endif %}
+                </div>
+                {% if product.avg_rating %}
+                    <div style="margin: 0.5rem 0;">
+                        <span style="color: #be8400;">
+                            {{ product.avg_rating|stars }}
+                        </span>
+                        <span style="color: #666; font-size: 0.9rem; margin-left: 0.5rem;">
+                            {{ product.avg_rating|floatformat:1 }} ({{ product.review_count }} review{{ product.review_count|pluralize }})
+                        </span>
+                    </div>
+                {% elif product.review_count > 0 %}
+                    <div style="margin: 0.5rem 0;">
+                        <span style="color: #666; font-size: 0.9rem;">
+                            {{ product.review_count }} review{{ product.review_count|pluralize }}
+                        </span>
+                    </div>
+                {% endif %}
+                {% if product.short_description %}
+                    <p style="font-size: 0.9rem; color: #666; margin: 0.5rem 0;">{{ product.short_description|truncatewords:15 }}</p>
+                {% endif %}
+                <div class="product-card-price">${{ product.price }}</div>
+                {% if product.is_made_from_local_materials %}
+                    <span style="display: inline-block; background-color: #be8400; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-top: 0.5rem;">Local Materials</span>
+                {% endif %}
+                <div style="margin-top: 0.5rem; font-size: 0.85rem; color: #666;">
+                    <span>🔥 {{ product.search_count }} searches</span>
+                    {% if product.sales_count %}
+                        <span style="margin-left: 1rem;">📦 {{ product.sales_count }} sales</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card" style="text-align: center; padding: 3rem;">
+        <p style="color: #666;">No trending products at the moment.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

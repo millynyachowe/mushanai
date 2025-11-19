@@ -1,0 +1,431 @@
+{% extends 'base.html' %}
+{% load product_tags %}
+
+{% block title %}Search Products - Mushanai{% endblock %}
+
+{% block extra_css %}
+<style>
+    .search-container {
+        display: flex;
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+    
+    .filters-sidebar {
+        width: 250px;
+        flex-shrink: 0;
+    }
+    
+    .search-results {
+        flex: 1;
+    }
+    
+    .filter-section {
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .filter-section h3 {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        color: #000000;
+        border-bottom: 2px solid #be8400;
+        padding-bottom: 0.5rem;
+    }
+    
+    .filter-option {
+        margin-bottom: 0.75rem;
+    }
+    
+    .filter-option label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        font-size: 0.95rem;
+    }
+    
+    .filter-option input[type="checkbox"],
+    .filter-option input[type="radio"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+    
+    .price-range-inputs {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+    
+    .price-range-inputs input {
+        flex: 1;
+        padding: 0.5rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 4px;
+    }
+    
+    .search-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .sort-options {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+    
+    .sort-options select {
+        padding: 0.5rem 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 4px;
+        background-color: #ffffff;
+    }
+    
+    .autocomplete-suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        z-index: 1000;
+        max-height: 300px;
+        overflow-y: auto;
+        display: none;
+    }
+    
+    .autocomplete-suggestion {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .autocomplete-suggestion:hover {
+        background-color: #f8f8f8;
+    }
+    
+    .search-input-container {
+        position: relative;
+        margin-bottom: 1rem;
+    }
+    
+    .rating-stars {
+        color: #be8400;
+        font-size: 0.9rem;
+    }
+    
+    .no-results {
+        text-align: center;
+        padding: 3rem;
+        color: #666;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 style="font-size: 2rem; margin-bottom: 1rem; color: #000000;">Search Products</h1>
+    
+    <!-- Search Form -->
+    <div class="search-input-container">
+        <form method="get" action="{% url 'product_search' %}" id="search-form">
+            <div style="display: flex; gap: 0.5rem;">
+                <input 
+                    type="text" 
+                    name="q" 
+                    id="search-input"
+                    value="{{ query }}"
+                    placeholder="Search for products..." 
+                    style="flex: 1; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 4px; font-size: 1rem;"
+                    autocomplete="off"
+                >
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+            <!-- Hidden fields to preserve filters -->
+            {% if selected_category %}
+                <input type="hidden" name="category" value="{{ selected_category }}">
+            {% endif %}
+            {% if selected_vendor %}
+                <input type="hidden" name="vendor" value="{{ selected_vendor }}">
+            {% endif %}
+            {% if min_price_filter %}
+                <input type="hidden" name="min_price" value="{{ min_price_filter }}">
+            {% endif %}
+            {% if max_price_filter %}
+                <input type="hidden" name="max_price" value="{{ max_price_filter }}">
+            {% endif %}
+            {% if local_materials_filter %}
+                <input type="hidden" name="local_materials" value="{{ local_materials_filter }}">
+            {% endif %}
+            {% if min_rating_filter %}
+                <input type="hidden" name="min_rating" value="{{ min_rating_filter }}">
+            {% endif %}
+            {% if sort_by %}
+                <input type="hidden" name="sort" value="{{ sort_by }}">
+            {% endif %}
+        </form>
+        <div class="autocomplete-suggestions" id="autocomplete-suggestions"></div>
+    </div>
+    
+    <div class="search-container">
+        <!-- Filters Sidebar -->
+        <div class="filters-sidebar">
+            <form method="get" action="{% url 'product_search' %}" id="filter-form">
+                {% if query %}
+                    <input type="hidden" name="q" value="{{ query }}">
+                {% endif %}
+                
+                <!-- Category Filter -->
+                <div class="filter-section">
+                    <h3>Category</h3>
+                    <div class="filter-option">
+                        <label>
+                            <input type="radio" name="category" value="" {% if not selected_category %}checked{% endif %} onchange="this.form.submit()">
+                            <span>All Categories</span>
+                        </label>
+                    </div>
+                    {% for category in categories %}
+                    <div class="filter-option">
+                        <label>
+                            <input type="radio" name="category" value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}checked{% endif %} onchange="this.form.submit()">
+                            <span>{{ category.name }}</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Price Range Filter -->
+                <div class="filter-section">
+                    <h3>Price Range</h3>
+                    <div class="price-range-inputs">
+                        <input type="number" name="min_price" placeholder="Min" value="{{ min_price_filter }}" step="0.01" min="0" onchange="this.form.submit()">
+                        <span>-</span>
+                        <input type="number" name="max_price" placeholder="Max" value="{{ max_price_filter }}" step="0.01" min="0" onchange="this.form.submit()">
+                    </div>
+                    {% if price_range.min_price and price_range.max_price %}
+                    <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">
+                        Range: ${{ price_range.min_price|floatformat:2 }} - ${{ price_range.max_price|floatformat:2 }}
+                    </p>
+                    {% endif %}
+                </div>
+                
+                <!-- Vendor Filter -->
+                <div class="filter-section">
+                    <h3>Vendor</h3>
+                    <div class="filter-option">
+                        <label>
+                            <input type="radio" name="vendor" value="" {% if not selected_vendor %}checked{% endif %} onchange="this.form.submit()">
+                            <span>All Vendors</span>
+                        </label>
+                    </div>
+                    {% for vendor in vendors|slice:":10" %}
+                    <div class="filter-option">
+                        <label>
+                            <input type="radio" name="vendor" value="{{ vendor.id }}" {% if selected_vendor == vendor.id|stringformat:"s" %}checked{% endif %} onchange="this.form.submit()">
+                            <span>{{ vendor.username }}</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Local Materials Filter -->
+                <div class="filter-section">
+                    <h3>Materials</h3>
+                    <div class="filter-option">
+                        <label>
+                            <input type="checkbox" name="local_materials" value="true" {% if local_materials_filter == 'true' %}checked{% endif %} onchange="this.form.submit()">
+                            <span>Made from Local Materials</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Rating Filter -->
+                <div class="filter-section">
+                    <h3>Minimum Rating</h3>
+                    <div class="filter-option">
+                        <label>
+                            <input type="radio" name="min_rating" value="" {% if not min_rating_filter %}checked{% endif %} onchange="this.form.submit()">
+                            <span>Any Rating</span>
+                        </label>
+                    </div>
+                    {% for rating in "54321" %}
+                    <div class="filter-option">
+                        <label>
+                            <input type="radio" name="min_rating" value="{{ rating }}" {% if min_rating_filter == rating %}checked{% endif %} onchange="this.form.submit()">
+                            <span class="rating-stars">{{ rating }}+ ⭐</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Sort Options -->
+                <div class="filter-section">
+                    <h3>Sort By</h3>
+                    <div class="filter-option">
+                        <label>
+                            <input type="radio" name="sort" value="newest" {% if sort_by == 'newest' %}checked{% endif %} onchange="this.form.submit()">
+                            <span>Newest</span>
+                        </label>
+                    </div>
+                    <div class="filter-option">
+                        <label>
+                            <input type="radio" name="sort" value="price_low" {% if sort_by == 'price_low' %}checked{% endif %} onchange="this.form.submit()">
+                            <span>Price: Low to High</span>
+                        </label>
+                    </div>
+                    <div class="filter-option">
+                        <label>
+                            <input type="radio" name="sort" value="price_high" {% if sort_by == 'price_high' %}checked{% endif %} onchange="this.form.submit()">
+                            <span>Price: High to Low</span>
+                        </label>
+                    </div>
+                    <div class="filter-option">
+                        <label>
+                            <input type="radio" name="sort" value="popularity" {% if sort_by == 'popularity' %}checked{% endif %} onchange="this.form.submit()">
+                            <span>Popularity</span>
+                        </label>
+                    </div>
+                    <div class="filter-option">
+                        <label>
+                            <input type="radio" name="sort" value="rating" {% if sort_by == 'rating' %}checked{% endif %} onchange="this.form.submit()">
+                            <span>Highest Rated</span>
+                        </label>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Search Results -->
+        <div class="search-results">
+            <div class="search-header">
+                <div>
+                    <h2 style="font-size: 1.5rem; color: #000000;">
+                        {% if query %}
+                            Search Results for "{{ query }}"
+                        {% else %}
+                            All Products
+                        {% endif %}
+                    </h2>
+                    <p style="color: #666; margin-top: 0.5rem;">{{ results_count }} product{{ results_count|pluralize }} found</p>
+                </div>
+            </div>
+            
+            {% if products %}
+            <div class="grid">
+                {% for product in products %}
+                <div class="product-card">
+                    <a href="{% url 'product_detail' product.slug %}" style="text-decoration: none; color: inherit;">
+                        {% if product.primary_image %}
+                            <img src="{{ product.primary_image.url }}" alt="{{ product.name }}">
+                        {% else %}
+                            <div style="width: 100%; height: 200px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #999;">
+                                No Image
+                            </div>
+                        {% endif %}
+                        <div class="product-card-body">
+                            <div class="product-card-title">{{ product.name }}</div>
+                            <div class="product-card-vendor">
+                                By:
+                                {% if product.has_vendor_account %}
+                                    <a href="{% url 'vendor_profile_public' product.vendor.id %}" style="color: #be8400; text-decoration: none;">{{ product.vendor_display_name }}</a>
+                                {% else %}
+                                    {{ product.vendor_display_name }}
+                                {% endif %}
+                            </div>
+                        {% if product.avg_rating %}
+                            <div style="margin: 0.5rem 0;">
+                                <span class="rating-stars" style="color: #be8400;">
+                                    {{ product.avg_rating|stars }}
+                                </span>
+                                <span style="color: #666; font-size: 0.9rem; margin-left: 0.5rem;">
+                                    {{ product.avg_rating|floatformat:1 }} ({{ product.review_count }} review{{ product.review_count|pluralize }})
+                                </span>
+                            </div>
+                        {% elif product.review_count > 0 %}
+                            <div style="margin: 0.5rem 0;">
+                                <span style="color: #666; font-size: 0.9rem;">
+                                    {{ product.review_count }} review{{ product.review_count|pluralize }}
+                                </span>
+                            </div>
+                        {% endif %}
+                        {% if product.short_description %}
+                            <p style="font-size: 0.9rem; color: #666; margin: 0.5rem 0;">{{ product.short_description|truncatewords:15 }}</p>
+                        {% endif %}
+                            <div class="product-card-price">${{ product.price }}</div>
+                            {% if product.is_made_from_local_materials %}
+                                <span style="display: inline-block; background-color: #be8400; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-top: 0.5rem;">Local Materials</span>
+                            {% endif %}
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="no-results">
+                <h3>No products found</h3>
+                <p>Try adjusting your filters or search terms.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Autocomplete functionality
+const searchInput = document.getElementById('search-input');
+const autocompleteSuggestions = document.getElementById('autocomplete-suggestions');
+let autocompleteTimeout;
+
+searchInput.addEventListener('input', function() {
+    const query = this.value.trim();
+    
+    clearTimeout(autocompleteTimeout);
+    
+    if (query.length < 2) {
+        autocompleteSuggestions.style.display = 'none';
+        return;
+    }
+    
+    autocompleteTimeout = setTimeout(() => {
+        fetch(`/search/autocomplete/?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.suggestions && data.suggestions.length > 0) {
+                    autocompleteSuggestions.innerHTML = data.suggestions.map(suggestion => 
+                        `<div class="autocomplete-suggestion" onclick="selectSuggestion('${suggestion.replace(/'/g, "\\'")}')">${suggestion}</div>`
+                    ).join('');
+                    autocompleteSuggestions.style.display = 'block';
+                } else {
+                    autocompleteSuggestions.style.display = 'none';
+                }
+            })
+            .catch(error => {
+                console.error('Autocomplete error:', error);
+            });
+    }, 300);
+});
+
+function selectSuggestion(suggestion) {
+    searchInput.value = suggestion;
+    autocompleteSuggestions.style.display = 'none';
+    document.getElementById('search-form').submit();
+}
+
+// Hide autocomplete when clicking outside
+document.addEventListener('click', function(event) {
+    if (!searchInput.contains(event.target) && !autocompleteSuggestions.contains(event.target)) {
+        autocompleteSuggestions.style.display = 'none';
+    }
+});
+</script>
+{% endblock %}
+
