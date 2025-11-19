@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:17-alpine
+    container_name: mushanai_db_dev
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=mushanai_db
+      - POSTGRES_USER=mushanai_user
+      - POSTGRES_PASSWORD=mushanai2024
+    ports:
+      - "5432:5432"
+    networks:
+      - mushanai_network_dev
+
+  # Django Application (Development)
+  web:
+    build: .
+    container_name: mushanai_web_dev
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - DEBUG=True
+      - DB_HOST=db
+      - DB_PORT=5432
+    depends_on:
+      - db
+    networks:
+      - mushanai_network_dev
+    restart: unless-stopped
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: mushanai_redis_dev
+    ports:
+      - "6379:6379"
+    networks:
+      - mushanai_network_dev
+
+volumes:
+  postgres_data_dev:
+
+networks:
+  mushanai_network_dev:
+    driver: bridge
+
