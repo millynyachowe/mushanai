@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'suppliers',
     'manufacturing',
     'social_media',
+    'notifications',
     'ministries',
     'projects',
     'products',

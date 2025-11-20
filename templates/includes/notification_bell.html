@@ -1,0 +1,229 @@
+{% comment %}
+Notification Bell Component
+Shows notification icon with unread count and dropdown
+Usage: {% include 'includes/notification_bell.html' %}
+{% endcomment %}
+
+<div class="notification-bell-container">
+    <div class="dropdown">
+        <button class="btn btn-link position-relative notification-bell-btn" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-bell fs-5"></i>
+            {% if request.user.is_authenticated %}
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge" id="notificationCount">
+                {{ request.user.notifications.filter|length }}
+                <span class="visually-hidden">unread notifications</span>
+            </span>
+            {% endif %}
+        </button>
+        
+        <ul class="dropdown-menu dropdown-menu-end notification-dropdown" aria-labelledby="notificationDropdown">
+            <li class="dropdown-header d-flex justify-content-between align-items-center">
+                <span><strong>Notifications</strong></span>
+                <a href="{% url 'notification_mark_all_read' %}" class="btn btn-sm btn-link" onclick="markAllAsRead(event)">
+                    <small>Mark all read</small>
+                </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            
+            <div class="notification-list" id="notificationList">
+                {% if request.user.is_authenticated %}
+                    {% for notification in request.user.notifications.all|slice:":5" %}
+                    <li>
+                        <a href="{{ notification.action_url|default:'#' }}" class="dropdown-item notification-item {% if not notification.is_read %}unread{% endif %}" 
+                           onclick="markAsRead({{ notification.id }}, event)" data-notification-id="{{ notification.id }}">
+                            <div class="d-flex">
+                                <div class="notification-icon me-2">
+                                    <span style="font-size: 24px;">{{ notification.icon }}</span>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="notification-title">{{ notification.title }}</div>
+                                    <div class="notification-message">{{ notification.message|truncatewords:15 }}</div>
+                                    <div class="notification-time">
+                                        <small class="text-muted">{{ notification.created_at|timesince }} ago</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    {% empty %}
+                    <li class="text-center p-3 text-muted">
+                        <i class="fas fa-bell-slash mb-2"></i>
+                        <p class="mb-0">No notifications yet</p>
+                    </li>
+                    {% endfor %}
+                {% else %}
+                    <li class="text-center p-3">
+                        <a href="{% url 'account_login' %}">Sign in to see notifications</a>
+                    </li>
+                {% endif %}
+            </div>
+            
+            {% if request.user.is_authenticated and request.user.notifications.count > 5 %}
+            <li><hr class="dropdown-divider"></li>
+            <li class="text-center">
+                <a href="{% url 'notification_list' %}" class="dropdown-item text-primary">
+                    <strong>View All Notifications</strong>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+
+<style>
+.notification-bell-container {
+    position: relative;
+}
+
+.notification-bell-btn {
+    color: #333;
+    text-decoration: none;
+    padding: 8px 12px;
+}
+
+.notification-bell-btn:hover {
+    background-color: rgba(0,0,0,0.05);
+    border-radius: 50%;
+}
+
+.notification-badge {
+    font-size: 0.65rem;
+    padding: 0.25em 0.5em;
+}
+
+.notification-dropdown {
+    width: 380px;
+    max-height: 500px;
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.notification-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s;
+}
+
+.notification-item:hover {
+    background-color: #f8f9fa;
+}
+
+.notification-item.unread {
+    background-color: #e3f2fd;
+}
+
+.notification-item.unread:hover {
+    background-color: #bbdefb;
+}
+
+.notification-title {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.notification-message {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.notification-time {
+    font-size: 11px;
+}
+
+.notification-icon {
+    flex-shrink: 0;
+}
+</style>
+
+<script>
+// Mark notification as read
+function markAsRead(notificationId, event) {
+    fetch(`/notifications/${notificationId}/read/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateNotificationCount(data.unread_count);
+            // Remove unread class
+            const item = event.target.closest('.notification-item');
+            if (item) {
+                item.classList.remove('unread');
+            }
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+// Mark all as read
+function markAllAsRead(event) {
+    event.preventDefault();
+    
+    fetch('/notifications/mark-all-read/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateNotificationCount(0);
+            // Remove all unread classes
+            document.querySelectorAll('.notification-item.unread').forEach(item => {
+                item.classList.remove('unread');
+            });
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+// Update notification count badge
+function updateNotificationCount(count) {
+    const badge = document.getElementById('notificationCount');
+    if (badge) {
+        badge.textContent = count;
+        if (count === 0) {
+            badge.style.display = 'none';
+        } else {
+            badge.style.display = 'inline-block';
+        }
+    }
+}
+
+// Get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Auto-refresh notifications every 30 seconds
+setInterval(function() {
+    if (document.getElementById('notificationCount')) {
+        fetch('/notifications/api/unread-count/')
+            .then(response => response.json())
+            .then(data => {
+                updateNotificationCount(data.unread_count);
+            })
+            .catch(error => console.error('Error:', error));
+    }
+}, 30000);
+</script>
+
