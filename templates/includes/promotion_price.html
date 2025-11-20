@@ -1,0 +1,76 @@
+{% comment %}
+Promotion Price Component
+Shows product pricing with promotion discount if active
+Usage: {% include 'includes/promotion_price.html' with product=product show_savings=True %}
+{% endcomment %}
+
+<div class="product-pricing">
+    {% if product.has_active_promotion %}
+        <!-- Promotional Pricing -->
+        <div class="price-with-promotion">
+            <div class="original-price">
+                <span class="strikethrough">${{ product.price }}</span>
+            </div>
+            <div class="promo-price">
+                <span class="current-price">${{ product.promotion_price }}</span>
+                {% if show_savings|default:True %}
+                <span class="savings-badge">
+                    Save ${{ product.promotion_savings|floatformat:2 }}
+                </span>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <!-- Regular Pricing -->
+        <div class="regular-price">
+            <span class="current-price">${{ product.price }}</span>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.product-pricing {
+    margin: 10px 0;
+}
+
+.price-with-promotion {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.original-price {
+    font-size: 0.9rem;
+    color: #999;
+}
+
+.strikethrough {
+    text-decoration: line-through;
+}
+
+.promo-price {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.current-price {
+    font-size: 1.75rem;
+    font-weight: bold;
+    color: #e74c3c;
+}
+
+.regular-price .current-price {
+    color: #333;
+}
+
+.savings-badge {
+    background-color: #4caf50;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+</style>
+

@@ -12,6 +12,9 @@ from .models import (
     VendorEvent,
 )
 
+# Import promotion admin classes
+from .admin_promotions import PromotionAdmin, ProductPromotionAdmin, PromotionAnalyticsAdmin
+
 
 @admin.register(VendorBadge)
 class VendorBadgeAdmin(admin.ModelAdmin):

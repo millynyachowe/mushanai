@@ -1,0 +1,79 @@
+{% comment %}
+Promotion Badge Component
+Shows promotion badge on products with active promotions
+Usage: {% include 'includes/promotion_badge.html' with product=product %}
+{% endcomment %}
+
+{% if product.has_active_promotion %}
+{% with badge=product.promotion_badge %}
+<div class="promotion-badge-container">
+    <!-- Promotion Badge -->
+    <div class="promotion-badge" style="background-color: {{ badge.color }};">
+        <span class="badge-text">{{ badge.display_name }}</span>
+        <span class="badge-percentage">{{ badge.percentage|floatformat:0 }}% OFF</span>
+    </div>
+    
+    {% if badge.show_countdown and badge.days_remaining > 0 %}
+    <!-- Countdown Timer -->
+    <div class="promotion-countdown">
+        <small>
+            ⏰ {% if badge.days_remaining == 0 %}
+                Ends today!
+            {% elif badge.days_remaining == 1 %}
+                Ends tomorrow
+            {% else %}
+                {{ badge.days_remaining }} days left
+            {% endif %}
+        </small>
+    </div>
+    {% endif %}
+</div>
+{% endwith %}
+{% endif %}
+
+<style>
+.promotion-badge-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    text-align: right;
+}
+
+.promotion-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 6px;
+    color: white;
+    font-weight: bold;
+    font-size: 0.85rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    margin-bottom: 5px;
+}
+
+.badge-text {
+    display: block;
+    font-size: 0.75rem;
+    opacity: 0.9;
+}
+
+.badge-percentage {
+    display: block;
+    font-size: 1rem;
+    margin-top: 2px;
+}
+
+.promotion-countdown {
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    color: #333;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.promotion-countdown small {
+    font-weight: 600;
+}
+</style>
+

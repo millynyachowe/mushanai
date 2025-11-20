@@ -871,3 +871,7 @@ class VendorDiscussionReply(models.Model):
         self.discussion.reply_count = self.discussion.replies.count()
         self.discussion.last_activity_at = self.created_at
         self.discussion.save(update_fields=['reply_count', 'last_activity_at'])
+
+
+# Import promotion models
+from .promotions_models import Promotion, ProductPromotion, PromotionAnalytics

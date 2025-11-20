@@ -173,6 +173,70 @@ class Product(models.Model):
         sales_count = OrderItem.objects.filter(product=self).count()
         return self.search_count + (self.review_count * 2) + sales_count
     
+    # Promotion-related methods
+    def get_active_promotion(self):
+        """Get the currently active promotion for this product"""
+        from vendors.models import ProductPromotion
+        from django.utils import timezone
+        
+        try:
+            product_promo = ProductPromotion.objects.select_related('promotion').filter(
+                product=self,
+                promotion__is_active=True,
+                promotion__status='ACTIVE',
+                promotion__start_date__lte=timezone.now(),
+                promotion__end_date__gte=timezone.now()
+            ).first()
+            return product_promo
+        except:
+            return None
+    
+    @property
+    def has_active_promotion(self):
+        """Check if product has an active promotion"""
+        return self.get_active_promotion() is not None
+    
+    @property
+    def promotion_price(self):
+        """Get discounted price if promotion is active, otherwise return regular price"""
+        promo = self.get_active_promotion()
+        if promo:
+            return promo.discounted_price
+        return self.price
+    
+    @property
+    def promotion_savings(self):
+        """Get amount saved from promotion"""
+        promo = self.get_active_promotion()
+        if promo:
+            return promo.savings_amount
+        return 0
+    
+    @property
+    def promotion_percentage(self):
+        """Get promotion discount percentage"""
+        promo = self.get_active_promotion()
+        if promo:
+            return float(promo.promotion.discount_percentage)
+        return 0
+    
+    @property
+    def promotion_badge(self):
+        """Get promotion badge style and details"""
+        promo = self.get_active_promotion()
+        if promo:
+            return {
+                'style': promo.promotion.style,
+                'name': promo.promotion.name,
+                'display_name': promo.promotion.get_style_display_name(),
+                'color': promo.promotion.get_badge_color(),
+                'percentage': float(promo.promotion.discount_percentage),
+                'end_date': promo.promotion.end_date,
+                'days_remaining': promo.promotion.days_remaining,
+                'show_countdown': promo.promotion.show_countdown,
+            }
+        return None
+    
     def clean(self):
         """Validate product data"""
         super().clean()

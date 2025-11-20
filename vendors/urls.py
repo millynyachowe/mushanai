@@ -28,6 +28,19 @@ from .views import (
     vendor_discussion_create,
 )
 
+# Import promotion views
+from .views_promotions import (
+    vendor_promotions_list,
+    vendor_promotion_create,
+    vendor_promotion_detail,
+    vendor_promotion_edit,
+    vendor_promotion_toggle,
+    vendor_promotion_delete,
+    vendor_promotion_add_products,
+    vendor_promotion_remove_product,
+    vendor_promotion_duplicate,
+)
+
 urlpatterns = [
     # Dashboard & Profile
     path('dashboard/', vendor_dashboard, name='vendor_dashboard'),
@@ -67,4 +80,15 @@ urlpatterns = [
     path('discussions/', vendor_discussions, name='vendor_discussions'),
     path('discussions/create/', vendor_discussion_create, name='vendor_discussion_create'),
     path('discussions/<int:discussion_id>/', vendor_discussion_detail, name='vendor_discussion_detail'),
+    
+    # Promotions
+    path('promotions/', vendor_promotions_list, name='vendor_promotions_list'),
+    path('promotions/create/', vendor_promotion_create, name='vendor_promotion_create'),
+    path('promotions/<int:promotion_id>/', vendor_promotion_detail, name='vendor_promotion_detail'),
+    path('promotions/<int:promotion_id>/edit/', vendor_promotion_edit, name='vendor_promotion_edit'),
+    path('promotions/<int:promotion_id>/toggle/', vendor_promotion_toggle, name='vendor_promotion_toggle'),
+    path('promotions/<int:promotion_id>/delete/', vendor_promotion_delete, name='vendor_promotion_delete'),
+    path('promotions/<int:promotion_id>/add-products/', vendor_promotion_add_products, name='vendor_promotion_add_products'),
+    path('promotions/<int:promotion_id>/remove-product/<int:product_id>/', vendor_promotion_remove_product, name='vendor_promotion_remove_product'),
+    path('promotions/<int:promotion_id>/duplicate/', vendor_promotion_duplicate, name='vendor_promotion_duplicate'),
 ]
