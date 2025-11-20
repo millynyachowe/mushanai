@@ -23,6 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('store.urls')),
     path('accounts/', include('accounts.urls')),
+    path('accounts/', include('allauth.urls')),  # Django-allauth URLs (Google OAuth)
     path('vendor/', include('vendors.urls')),
     path('projects/', include('projects.urls')),
     path('customer/', include('customers.urls')),

@@ -40,9 +40,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',  # Required for allauth
     # Third party apps
     'rest_framework',
     'corsheaders',
+    # Django-allauth
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
     # Custom apps
     'accounts',
     'customers',
@@ -69,6 +75,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',  # Required for allauth
 ]
 
 ROOT_URLCONF = 'mushanaicore.urls'
@@ -84,6 +91,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # Required by allauth
+                'django.template.context_processors.request',
             ],
         },
     },
@@ -204,3 +213,57 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'millynyachowe@gmail.com'
 EMAIL_HOST_PASSWORD = 'tukrytcvbtpfcezd'
 DEFAULT_FROM_EMAIL = 'millynyachowe@gmail.com'
+
+# Django Sites Framework (required for allauth)
+SITE_ID = 1
+
+# Authentication Backends
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+# Django-allauth Settings
+ACCOUNT_AUTHENTICATION_METHOD = 'email'  # Use email for authentication
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False  # Don't require username, use email
+ACCOUNT_EMAIL_VERIFICATION = 'optional'  # 'mandatory', 'optional', or 'none'
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_SIGNUP_EMAIL_ENTER_TWICE = False
+ACCOUNT_SESSION_REMEMBER = True
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
+
+# Social Account Settings
+SOCIALACCOUNT_AUTO_SIGNUP = True  # Auto-create account on first Google login
+SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'  # Skip verification for social accounts
+SOCIALACCOUNT_QUERY_EMAIL = True
+SOCIALACCOUNT_STORE_TOKENS = True
+
+# Google OAuth Settings
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'APP': {
+            'client_id': config('GOOGLE_CLIENT_ID', default=''),
+            'secret': config('GOOGLE_CLIENT_SECRET', default=''),
+            'key': ''
+        },
+        'VERIFIED_EMAIL': True,
+    }
+}
+
+# Redirect URLs after login/logout
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+ACCOUNT_LOGOUT_REDIRECT_URL = '/'
+
+# Social account adapter (custom logic for user creation)
+SOCIALACCOUNT_ADAPTER = 'accounts.adapters.CustomSocialAccountAdapter'
