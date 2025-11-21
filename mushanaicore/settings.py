@@ -268,3 +268,80 @@ ACCOUNT_LOGOUT_REDIRECT_URL = '/'
 
 # Social account adapter (custom logic for user creation)
 SOCIALACCOUNT_ADAPTER = 'accounts.adapters.CustomSocialAccountAdapter'
+
+# ==============================================================================
+# SENTRY ERROR TRACKING
+# ==============================================================================
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
+# Sentry DSN from environment variable
+SENTRY_DSN = config('SENTRY_DSN', default='')
+SENTRY_ENVIRONMENT = config('SENTRY_ENVIRONMENT', default='development')
+
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[
+            DjangoIntegration(
+                transaction_style='url',
+                middleware_spans=True,
+                signals_spans=True,
+                cache_spans=True,
+            ),
+        ],
+        
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for performance monitoring.
+        # We recommend adjusting this value in production.
+        traces_sample_rate=1.0 if DEBUG else 0.1,
+        
+        # Set profiles_sample_rate to 1.0 to profile 100%
+        # of sampled transactions.
+        # We recommend adjusting this value in production.
+        profiles_sample_rate=1.0 if DEBUG else 0.1,
+        
+        # Environment (development, staging, production)
+        environment=SENTRY_ENVIRONMENT,
+        
+        # Send default PII (Personally Identifiable Information)
+        send_default_pii=True,
+        
+        # Attach stacktrace to messages
+        attach_stacktrace=True,
+        
+        # Enable request body capturing
+        request_bodies='medium',
+        
+        # Set maximum breadcrumbs
+        max_breadcrumbs=50,
+        
+        # Release tracking
+        release=config('SENTRY_RELEASE', default=None),
+        
+        # Ignore common errors
+        ignore_errors=[
+            'django.http.Http404',
+            'django.exceptions.DisallowedHost',
+        ],
+        
+        # Before send callback (filter sensitive data)
+        before_send=lambda event, hint: event,
+    )
+
+# ==============================================================================
+# DJANGO SILK (Performance Profiling - Development Only)
+# ==============================================================================
+if DEBUG:
+    INSTALLED_APPS += ['silk']
+    MIDDLEWARE += ['silk.middleware.SilkyMiddleware']
+    
+    # Silk Configuration
+    SILKY_PYTHON_PROFILER = True
+    SILKY_PYTHON_PROFILER_BINARY = True
+    SILKY_PYTHON_PROFILER_RESULT_PATH = os.path.join(BASE_DIR, 'profiles')
+    SILKY_MAX_REQUEST_BODY_SIZE = -1  # Silk takes anything <0 as no limit
+    SILKY_MAX_RESPONSE_BODY_SIZE = 1024  # 1KB
+    SILKY_INTERCEPT_PERCENT = 100  # Profile all requests in dev
+    SILKY_MAX_RECORDED_REQUESTS = 10000
+    SILKY_META = True

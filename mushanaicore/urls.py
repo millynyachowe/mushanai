@@ -19,6 +19,12 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+# Custom error handlers
+handler404 = 'mushanaicore.error_handlers.handler404'
+handler500 = 'mushanaicore.error_handlers.handler500'
+handler403 = 'mushanaicore.error_handlers.handler403'
+handler400 = 'mushanaicore.error_handlers.handler400'
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('store.urls')),
@@ -36,3 +42,6 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    
+    # Django Silk (Performance Profiling)
+    urlpatterns += [path('silk/', include('silk.urls', namespace='silk'))]
