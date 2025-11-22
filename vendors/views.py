@@ -31,20 +31,24 @@ def vendor_dashboard(request):
     # Get or create vendor profile
     vendor_profile, created = VendorProfile.objects.get_or_create(vendor=vendor)
     
-    # Get vendor products
-    products = Product.objects.filter(vendor=vendor)
+    # Get vendor products with aggregations (single query)
+    products = Product.objects.filter(vendor=vendor).only('id', 'is_active', 'search_count')
     
-    # Calculate analytics
-    total_products = products.count()
-    active_products = products.filter(is_active=True).count()
+    # Calculate analytics in one aggregation
+    product_stats = products.aggregate(
+        total_products=Count('id'),
+        active_products=Count('id', filter=Q(is_active=True)),
+        total_clicks=Sum('search_count')
+    )
+    total_products = product_stats['total_products'] or 0
+    active_products = product_stats['active_products'] or 0
+    total_clicks = product_stats['total_clicks'] or 0
     
-    # Get cart items for vendor products (cart abandonment tracking)
-    vendor_product_ids = products.values_list('id', flat=True)
-    cart_items = CartItem.objects.filter(product_id__in=vendor_product_ids)
-    abandoned_carts_count = cart_items.filter(cart__is_abandoned=True).count()
-    
-    # Calculate total views/clicks (using search_count as proxy for now)
-    total_clicks = products.aggregate(total=Sum('search_count'))['total'] or 0
+    # Get cart items for vendor products (optimized with subquery)
+    abandoned_carts_count = CartItem.objects.filter(
+        product__vendor=vendor,
+        cart__is_abandoned=True
+    ).count()
     
     # Get or create analytics
     analytics, _ = VendorAnalytics.objects.get_or_create(vendor=vendor)
@@ -72,18 +76,13 @@ def vendor_dashboard(request):
         product__vendor=vendor
     ).select_related('product', 'customer').order_by('-created_at')[:5]
     
-    # Get pending reviews (not approved yet)
-    pending_reviews_count = ProductReview.objects.filter(
-        product__vendor=vendor,
-        is_approved=False
-    ).count()
-    
-    # Get reviews needing response
-    reviews_needing_response = ProductReview.objects.filter(
-        product__vendor=vendor,
-        is_approved=True,
-        vendor_response__isnull=True
-    ).count()
+    # Get review counts in a single query
+    review_stats = ProductReview.objects.filter(product__vendor=vendor).aggregate(
+        pending_count=Count('id', filter=Q(is_approved=False)),
+        needs_response_count=Count('id', filter=Q(is_approved=True, vendor_response__isnull=True))
+    )
+    pending_reviews_count = review_stats['pending_count'] or 0
+    reviews_needing_response = review_stats['needs_response_count'] or 0
     
     # Update vendor metrics if needed (lazy update)
     from django.utils import timezone

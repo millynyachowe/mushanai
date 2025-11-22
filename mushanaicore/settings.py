@@ -160,8 +160,10 @@ DATABASES = {
         'PASSWORD': config('DB_PASSWORD', default='mushanai2024'),
         'HOST': config('DB_HOST', default='localhost'),
         'PORT': config('DB_PORT', default='5432'),
+        'CONN_MAX_AGE': 600,  # Keep connections alive for 10 minutes
         'OPTIONS': {
             'client_encoding': 'UTF8',
+            'connect_timeout': 10,
         },
     }
 }
@@ -176,6 +178,29 @@ if config('DATABASE_URL', default=''):
 
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.User'
+
+# ==============================================================================
+# CACHING CONFIGURATION (REDIS)
+# ==============================================================================
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': config('REDIS_URL', default='redis://redis:6379/1'),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'CONNECTION_POOL_KWARGS': {
+                'max_connections': 50,
+                'retry_on_timeout': True,
+            },
+            'SOCKET_CONNECT_TIMEOUT': 5,
+            'SOCKET_TIMEOUT': 5,
+        },
+        'KEY_PREFIX': 'mushanai',
+        'TIMEOUT': 300,  # 5 minutes default
+    }
+}
+
+# Note: Template caching is handled at the view level with @cache_page decorator
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

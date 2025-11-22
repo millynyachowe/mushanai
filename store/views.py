@@ -32,6 +32,9 @@ from orders.models import Cart, CartItem, Order, OrderItem, OrderPaymentSubmissi
 User = get_user_model()
 
 
+from django.views.decorators.cache import cache_page
+
+@cache_page(60 * 5)  # Cache for 5 minutes
 def home(request):
     from products.models import CategoryDisplaySchedule
     from customers.models import CustomerTestimonial
@@ -55,11 +58,11 @@ def home(request):
             if not category.is_active:
                 continue
             
-            # Get products for this category
+            # Get products for this category (optimized with select_related)
             products = Product.objects.filter(
                 category=category,
                 is_active=True
-            ).annotate(
+            ).select_related('vendor', 'category').annotate(
                 avg_rating=Avg('reviews__rating'),
                 review_total=Count('reviews', distinct=True)
             ).order_by('-created_at')[:12]
@@ -80,7 +83,7 @@ def home(request):
             products = Product.objects.filter(
                 category=category,
                 is_active=True
-            ).annotate(
+            ).select_related('vendor', 'category').annotate(
                 avg_rating=Avg('reviews__rating'),
                 review_total=Count('reviews', distinct=True)
             ).order_by('-created_at')[:12]
@@ -94,11 +97,11 @@ def home(request):
                     'tagline': category.display_tagline or category.description or '',
                 })
     
-    # Premium Picks - Get premium tier products
+    # Premium Picks - Get premium tier products (optimized)
     premium_products = Product.objects.filter(
         category__tier='PREMIUM',
         is_active=True
-    ).annotate(
+    ).select_related('vendor', 'category').annotate(
         avg_rating=Avg('reviews__rating'),
         review_total=Count('reviews', distinct=True)
     ).order_by('-is_featured', '-created_at')[:4]
@@ -106,11 +109,11 @@ def home(request):
     # Trending products
     trending_products = get_trending_products(limit=8)
     
-    # Featured vendors/brands
+    # Featured vendors/brands (optimized)
     featured_vendors = VendorProfile.objects.filter(
         is_verified=True,
         vendor__products__is_active=True
-    ).distinct().annotate(
+    ).select_related('vendor').distinct().annotate(
         product_count=Count('vendor__products', filter=Q(vendor__products__is_active=True))
     ).filter(product_count__gt=0).order_by('-overall_rating', '-total_reviews')[:6]
     
