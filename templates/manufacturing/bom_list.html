@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Bills of Materials - Mushanai{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="margin-bottom: 2rem;">
+        <a href="{% url 'manufacturing_dashboard' %}" style="color: #be8400; text-decoration: none;">← Back to Manufacturing</a>
+    </div>
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1 style="font-size: 2.5rem; color: #000000;">📋 Bills of Materials</h1>
+        <a href="{% url 'vendor_product_list' %}" class="btn btn-primary">+ Add BOM to Product</a>
+    </div>
+    
+    <div class="card">
+        {% if boms %}
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 2px solid #e0e0e0;">
+                    <th style="padding: 1rem; text-align: left;">Product</th>
+                    <th style="padding: 1rem; text-align: left;">Batch Size</th>
+                    <th style="padding: 1rem; text-align: left;">Materials</th>
+                    <th style="padding: 1rem; text-align: left;">Cost/Unit</th>
+                    <th style="padding: 1rem; text-align: left;">Status</th>
+                    <th style="padding: 1rem; text-align: left;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bom in boms %}
+                <tr style="border-bottom: 1px solid #e0e0e0;">
+                    <td style="padding: 1rem;"><strong>{{ bom.product.name }}</strong></td>
+                    <td style="padding: 1rem;">{{ bom.batch_size }}</td>
+                    <td style="padding: 1rem;">{{ bom.items.count }} items</td>
+                    <td style="padding: 1rem;">${{ bom.total_cost_per_unit|floatformat:2 }}</td>
+                    <td style="padding: 1rem;">
+                        {% if bom.is_active %}
+                            <span style="color: #28a745; font-weight: bold;">✓ Active</span>
+                        {% else %}
+                            <span style="color: #999;">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 1rem;">
+                        <a href="{% url 'bom_detail' bom.id %}" style="color: #be8400; text-decoration: none; margin-right: 1rem;">View</a>
+                        <a href="{% url 'bom_edit' bom.id %}" style="color: #17a2b8; text-decoration: none;">Edit</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div style="text-align: center; padding: 3rem;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">📋</div>
+            <h3 style="color: #000000; margin-bottom: 1rem;">No Bills of Materials Yet</h3>
+            <p style="color: #666; margin-bottom: 1.5rem;">
+                Create BOMs to define what materials are needed to make your products.
+            </p>
+            <a href="{% url 'vendor_product_list' %}" class="btn btn-primary">View Products</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

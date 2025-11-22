@@ -34,6 +34,7 @@ urlpatterns = [
     path('projects/', include('projects.urls')),
     path('customer/', include('customers.urls')),
     path('notifications/', include('notifications.urls')),
+    path('manufacturing/', include('manufacturing.urls')),
     # API routes will be added here
     # path('api/', include('api.urls')),
 ]

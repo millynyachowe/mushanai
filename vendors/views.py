@@ -88,8 +88,12 @@ def vendor_dashboard(request):
     # Update vendor metrics if needed (lazy update)
     from django.utils import timezone
     from datetime import timedelta
-    if not vendor_profile.ratings_last_calculated or (timezone.now() - vendor_profile.ratings_last_calculated) > timedelta(hours=1):
-        vendor_profile.update_metrics()
+    try:
+        if not vendor_profile.ratings_last_calculated or (timezone.now() - vendor_profile.ratings_last_calculated) > timedelta(hours=1):
+            vendor_profile.update_metrics()
+    except AttributeError:
+        # For new vendors, metrics methods might not be available yet
+        pass
     
     # Get selected project
     selected_project = vendor_profile.selected_project

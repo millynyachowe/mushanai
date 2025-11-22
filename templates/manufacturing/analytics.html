@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Manufacturing Analytics - Mushanai{% endblock %}
+{% block content %}
+<div class="container">
+    <div style="margin-bottom: 2rem;">
+        <a href="{% url 'manufacturing_dashboard' %}" style="color: #be8400; text-decoration: none;">← Back to Manufacturing</a>
+    </div>
+    <h1 style="font-size: 2.5rem; color: #000000; margin-bottom: 2rem;">📊 Manufacturing Analytics</h1>
+    
+    <div class="stats-grid" style="margin-bottom: 2rem;">
+        <div class="stat-card">
+            <div class="stat-card-value">{{ stats.total_units|default:0|floatformat:0 }}</div>
+            <div class="stat-card-label">Units Produced</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-value">${{ stats.total_cost|default:0|floatformat:2 }}</div>
+            <div class="stat-card-label">Production Cost</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-value">{{ stats.avg_local_percentage|default:0|floatformat:1 }}%</div>
+            <div class="stat-card-label">Local Materials</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-value">{{ worker_stats.total_workers|default:0 }}</div>
+            <div class="stat-card-label">Workers</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-value">{{ worker_stats.total_hours|default:0|floatformat:1 }}</div>
+            <div class="stat-card-label">Hours Worked</div>
+        </div>
+        <div class="stat-card" style="background-color: #d4edda;">
+            <div class="stat-card-value" style="color: #155724;">${{ community_contribution|floatformat:2 }}</div>
+            <div class="stat-card-label">Community Impact</div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div style="text-align: center; padding: 2rem;">
+            <p style="color: #666;">Detailed analytics and charts will be displayed here.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

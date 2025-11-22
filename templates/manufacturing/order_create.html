@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Production Order - Mushanai{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 800px; margin: 3rem auto;">
+    <div style="margin-bottom: 2rem;">
+        <a href="{% url 'manufacturing_dashboard' %}" style="color: #be8400; text-decoration: none;">← Back to Manufacturing</a>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">Create New Production Order</div>
+        
+        {% if products %}
+        <form method="post" style="padding: 2rem;">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="product_id">Product with BOM *</label>
+                <select id="product_id" name="product_id" required style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="">Select a product...</option>
+                    {% for product in products %}
+                    <option value="{{ product.id }}">{{ product.name }} (BOM available)</option>
+                    {% endfor %}
+                </select>
+                <small style="color: #666; display: block; margin-top: 0.5rem;">Only products with Bills of Materials can be manufactured</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="quantity">Quantity to Produce *</label>
+                <input type="number" id="quantity" name="quantity" step="0.01" min="0.01" required style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            
+            <div class="form-group">
+                <label for="scheduled_date">Scheduled Date</label>
+                <input type="date" id="scheduled_date" name="scheduled_date" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px;">
+                <small style="color: #666; display: block; margin-top: 0.5rem;">Leave empty to start immediately</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="priority">Priority</label>
+                <select id="priority" name="priority" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="LOW">Low</option>
+                    <option value="NORMAL" selected>Normal</option>
+                    <option value="HIGH">High</option>
+                    <option value="URGENT">Urgent</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="notes">Production Notes</label>
+                <textarea id="notes" name="notes" rows="4" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px;" placeholder="Any special instructions or notes..."></textarea>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">Create Production Order</button>
+                <a href="{% url 'manufacturing_dashboard' %}" class="btn btn-outline" style="flex: 1; text-align: center;">Cancel</a>
+            </div>
+        </form>
+        {% else %}
+        <div style="text-align: center; padding: 3rem;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">📋</div>
+            <h3 style="color: #000000; margin-bottom: 1rem;">No Products with BOMs</h3>
+            <p style="color: #666; margin-bottom: 1.5rem;">
+                You need to create Bills of Materials (BOMs) for your products before you can create production orders.
+            </p>
+            <a href="{% url 'bom_list' %}" class="btn btn-primary">Create Bills of Materials</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Production Orders - Mushanai{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="margin-bottom: 2rem;">
+        <a href="{% url 'manufacturing_dashboard' %}" style="color: #be8400; text-decoration: none;">← Back to Manufacturing</a>
+    </div>
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1 style="font-size: 2.5rem; color: #000000;">📦 Production Orders</h1>
+        <a href="{% url 'manufacturing_order_create' %}" class="btn btn-primary">+ New Order</a>
+    </div>
+    
+    <div class="card">
+        {% if orders %}
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 2px solid #e0e0e0;">
+                    <th style="padding: 1rem; text-align: left;">Order #</th>
+                    <th style="padding: 1rem; text-align: left;">Product</th>
+                    <th style="padding: 1rem; text-align: left;">Quantity</th>
+                    <th style="padding: 1rem; text-align: left;">Status</th>
+                    <th style="padding: 1rem; text-align: left;">Priority</th>
+                    <th style="padding: 1rem; text-align: left;">Scheduled</th>
+                    <th style="padding: 1rem; text-align: left;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr style="border-bottom: 1px solid #e0e0e0;">
+                    <td style="padding: 1rem;"><strong>{{ order.mo_number }}</strong></td>
+                    <td style="padding: 1rem;">{{ order.product.name }}</td>
+                    <td style="padding: 1rem;">{{ order.quantity_to_produce }}</td>
+                    <td style="padding: 1rem;">
+                        {% if order.status == 'COMPLETED' %}
+                            <span style="background-color: #28a745; color: white; padding: 0.25rem 0.75rem; border-radius: 4px;">{{ order.get_status_display }}</span>
+                        {% elif order.status == 'IN_PROGRESS' %}
+                            <span style="background-color: #ffc107; color: #000; padding: 0.25rem 0.75rem; border-radius: 4px;">{{ order.get_status_display }}</span>
+                        {% else %}
+                            <span style="background-color: #e0e0e0; color: #666; padding: 0.25rem 0.75rem; border-radius: 4px;">{{ order.get_status_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 1rem;">
+                        {% if order.priority == 'URGENT' %}🔴{% elif order.priority == 'HIGH' %}🟡{% endif %}
+                        {{ order.get_priority_display }}
+                    </td>
+                    <td style="padding: 1rem;">{{ order.scheduled_date|date:"M d, Y"|default:"ASAP" }}</td>
+                    <td style="padding: 1rem;">
+                        <a href="{% url 'manufacturing_order_detail' order.id %}" style="color: #be8400; text-decoration: none;">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div style="text-align: center; padding: 3rem;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">📦</div>
+            <h3 style="color: #000000; margin-bottom: 1rem;">No Production Orders Yet</h3>
+            <p style="color: #666; margin-bottom: 1.5rem;">Create your first production order to start manufacturing.</p>
+            <a href="{% url 'manufacturing_order_create' %}" class="btn btn-primary">Create Production Order</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

@@ -4,110 +4,123 @@
 {% block title %}Record Expense - {{ request.user.vendor_profile.company_name }}{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="row">
-        <div class="col-md-8 mx-auto">
-            <a href="{% url 'vendor_expenses_list' %}" class="btn btn-outline-secondary mb-3">
-                <i class="fas fa-arrow-left"></i> Back to Expenses
-            </a>
+<div class="container" style="max-width: 900px; margin: 3rem auto;">
+    <div style="margin-bottom: 2rem;">
+        <a href="{% url 'vendor_expenses_list' %}" style="color: #be8400; text-decoration: none;">← Back to Expenses</a>
+    </div>
 
-            <div class="card shadow-sm">
-                <div class="card-header bg-danger text-white">
-                    <h5 class="mb-0"><i class="fas fa-receipt"></i> Record New Expense</h5>
+    <div class="card" style="border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <div class="card-header" style="background: linear-gradient(135deg, #be8400 0%, #f0a500 100%); color: white; border-radius: 16px 16px 0 0; padding: 1.5rem;">
+            <h2 style="margin: 0; font-size: 1.8rem;">📝 Record New Expense</h2>
+        </div>
+        
+        <form method="POST" enctype="multipart/form-data" style="padding: 2rem;">
+            {% csrf_token %}
+            
+            {% if companies %}
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label for="company_id" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333;">Company</label>
+                <select id="company_id" name="company_id" style="width: 100%; padding: 0.875rem; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1rem; transition: all 0.3s;">
+                    <option value="">Default Company</option>
+                    {% for company in companies %}
+                    <option value="{{ company.id }}">{{ company.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label for="description" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333;">Description *</label>
+                <input type="text" id="description" name="description" required maxlength="200" placeholder="e.g., Office Supplies" 
+                       style="width: 100%; padding: 0.875rem; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1rem; transition: all 0.3s;">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                <div class="form-group">
+                    <label for="category" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333;">Category *</label>
+                    <select id="category" name="category" required style="width: 100%; padding: 0.875rem; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1rem; transition: all 0.3s;">
+                        <option value="">Select category...</option>
+                        <option value="SUPPLIES">📦 Supplies & Materials</option>
+                        <option value="SHIPPING">🚚 Shipping & Delivery</option>
+                        <option value="MARKETING">📢 Marketing & Advertising</option>
+                        <option value="UTILITIES">💡 Utilities</option>
+                        <option value="RENT">🏢 Rent</option>
+                        <option value="SALARIES">💵 Salaries & Wages</option>
+                        <option value="EQUIPMENT">🔧 Equipment</option>
+                        <option value="PROFESSIONAL_SERVICES">👔 Professional Services</option>
+                        <option value="OTHER">📋 Other</option>
+                    </select>
                 </div>
-                <div class="card-body">
-                    <form method="POST" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        
-                        {% if companies %}
-                        <div class="mb-3">
-                            <label for="company_id" class="form-label">Company</label>
-                            <select class="form-select" id="company_id" name="company_id">
-                                <option value="">Default Company</option>
-                                {% for company in companies %}
-                                <option value="{{ company.id }}">{{ company.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        {% endif %}
 
-                        <div class="mb-3">
-                            <label for="description" class="form-label">Description *</label>
-                            <input type="text" class="form-control" id="description" name="description" required maxlength="200" placeholder="e.g., Office Supplies">
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="category" class="form-label">Category *</label>
-                                <select class="form-select" id="category" name="category" required>
-                                    <option value="">Select category...</option>
-                                    <option value="SUPPLIES">Supplies & Materials</option>
-                                    <option value="SHIPPING">Shipping & Delivery</option>
-                                    <option value="MARKETING">Marketing & Advertising</option>
-                                    <option value="UTILITIES">Utilities</option>
-                                    <option value="RENT">Rent</option>
-                                    <option value="SALARIES">Salaries & Wages</option>
-                                    <option value="EQUIPMENT">Equipment</option>
-                                    <option value="PROFESSIONAL_SERVICES">Professional Services</option>
-                                    <option value="OTHER">Other</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="amount" class="form-label">Amount *</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">$</span>
-                                    <input type="number" class="form-control" id="amount" name="amount" required step="0.01" min="0" placeholder="0.00">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="expense_date" class="form-label">Expense Date *</label>
-                                <input type="date" class="form-control" id="expense_date" name="expense_date" required>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="payment_method" class="form-label">Payment Method</label>
-                                <input type="text" class="form-control" id="payment_method" name="payment_method" placeholder="e.g., Cash, EcoCash, Card">
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="reference_number" class="form-label">Reference Number</label>
-                            <input type="text" class="form-control" id="reference_number" name="reference_number" placeholder="Invoice number, transaction ID, etc.">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="receipt_image" class="form-label">Receipt Image</label>
-                            <input type="file" class="form-control" id="receipt_image" name="receipt_image" accept="image/*">
-                            <small class="text-muted">Upload a photo or scan of your receipt (optional)</small>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="notes" class="form-label">Notes</label>
-                            <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Additional notes or details about this expense"></textarea>
-                        </div>
-
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <a href="{% url 'vendor_expenses_list' %}" class="btn btn-outline-secondary">
-                                <i class="fas fa-times"></i> Cancel
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Record Expense
-                            </button>
-                        </div>
-                    </form>
+                <div class="form-group">
+                    <label for="amount" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333;">Amount *</label>
+                    <div style="display: flex; align-items: center; border: 2px solid #e0e0e0; border-radius: 10px; overflow: hidden;">
+                        <span style="padding: 0.875rem 1rem; background-color: #f8f8f8; color: #666; font-weight: 600; border-right: 2px solid #e0e0e0;">$</span>
+                        <input type="number" id="amount" name="amount" required step="0.01" min="0" placeholder="0.00" 
+                               style="flex: 1; padding: 0.875rem; border: none; font-size: 1rem;">
+                    </div>
                 </div>
             </div>
-        </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                <div class="form-group">
+                    <label for="expense_date" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333;">Expense Date *</label>
+                    <input type="date" id="expense_date" name="expense_date" required 
+                           style="width: 100%; padding: 0.875rem; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1rem; transition: all 0.3s;">
+                </div>
+
+                <div class="form-group">
+                    <label for="payment_method" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333;">Payment Method</label>
+                    <input type="text" id="payment_method" name="payment_method" placeholder="e.g., Cash, EcoCash, Card" 
+                           style="width: 100%; padding: 0.875rem; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1rem; transition: all 0.3s;">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label for="reference_number" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333;">Reference Number</label>
+                <input type="text" id="reference_number" name="reference_number" placeholder="Invoice number, transaction ID, etc." 
+                       style="width: 100%; padding: 0.875rem; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1rem; transition: all 0.3s;">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label for="receipt_image" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333;">Receipt Image</label>
+                <input type="file" id="receipt_image" name="receipt_image" accept="image/*" 
+                       style="width: 100%; padding: 0.875rem; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1rem;">
+                <small style="color: #666; display: block; margin-top: 0.5rem;">Upload a photo or scan of your receipt (optional)</small>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 2rem;">
+                <label for="notes" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333;">Notes</label>
+                <textarea id="notes" name="notes" rows="4" placeholder="Additional notes or details about this expense" 
+                          style="width: 100%; padding: 0.875rem; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1rem; transition: all 0.3s; resize: vertical;"></textarea>
+            </div>
+
+            <div style="display: flex; gap: 1rem; justify-content: flex-end; padding-top: 1rem; border-top: 2px solid #f0f0f0;">
+                <a href="{% url 'vendor_expenses_list' %}" class="btn btn-outline" style="padding: 0.875rem 2rem;">
+                    ✕ Cancel
+                </a>
+                <button type="submit" class="btn btn-primary" style="padding: 0.875rem 2rem;">
+                    💾 Record Expense
+                </button>
+            </div>
+        </form>
     </div>
 </div>
+
+<style>
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #be8400 !important;
+    box-shadow: 0 0 0 3px rgba(190, 132, 0, 0.1);
+}
+
+input::placeholder, textarea::placeholder {
+    color: #999;
+}
+</style>
 
 <script>
 // Set today as default date
 document.getElementById('expense_date').valueAsDate = new Date();
 </script>
 {% endblock %}
-

@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+
+{% block title %}Manufacturing Dashboard - Mushanai{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="margin-bottom: 2rem;">
+        <h1 style="font-size: 2.5rem; color: #000000; margin-bottom: 0.5rem;">🏭 Manufacturing Dashboard</h1>
+        <p style="color: #666;">Manage production orders, BOMs, and track manufacturing performance</p>
+    </div>
+    
+    <!-- Status Overview -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-card-value">{{ orders_ready }}</div>
+            <div class="stat-card-label">Ready to Start</div>
+        </div>
+        
+        <div class="stat-card" style="background-color: #fff3cd;">
+            <div class="stat-card-value" style="color: #856404;">{{ orders_in_progress }}</div>
+            <div class="stat-card-label">In Progress</div>
+        </div>
+        
+        <div class="stat-card" style="background-color: #d1ecf1;">
+            <div class="stat-card-value" style="color: #0c5460;">{{ orders_quality_check }}</div>
+            <div class="stat-card-label">Quality Check</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-card-value">{{ products_with_bom }}</div>
+            <div class="stat-card-label">Products with BOM</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-card-value">{{ month_production.total_orders|default:0 }}</div>
+            <div class="stat-card-label">Orders This Month</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-card-value">{{ month_production.total_units|default:0|floatformat:0 }}</div>
+            <div class="stat-card-label">Units Produced</div>
+        </div>
+    </div>
+    
+    <!-- Today's Production Orders -->
+    {% if today_orders %}
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">📅 Today's Production Schedule</div>
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 2px solid #e0e0e0;">
+                    <th style="padding: 1rem; text-align: left;">Order #</th>
+                    <th style="padding: 1rem; text-align: left;">Product</th>
+                    <th style="padding: 1rem; text-align: left;">Quantity</th>
+                    <th style="padding: 1rem; text-align: left;">Status</th>
+                    <th style="padding: 1rem; text-align: left;">Priority</th>
+                    <th style="padding: 1rem; text-align: left;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in today_orders %}
+                <tr style="border-bottom: 1px solid #e0e0e0;">
+                    <td style="padding: 1rem;"><strong>{{ order.mo_number }}</strong></td>
+                    <td style="padding: 1rem;">{{ order.product.name }}</td>
+                    <td style="padding: 1rem;">{{ order.quantity_to_produce }}</td>
+                    <td style="padding: 1rem;">
+                        {% if order.status == 'READY' %}
+                            <span style="background-color: #d4edda; color: #155724; padding: 0.25rem 0.75rem; border-radius: 4px;">{{ order.get_status_display }}</span>
+                        {% elif order.status == 'IN_PROGRESS' %}
+                            <span style="background-color: #fff3cd; color: #856404; padding: 0.25rem 0.75rem; border-radius: 4px;">{{ order.get_status_display }}</span>
+                        {% elif order.status == 'QUALITY_CHECK' %}
+                            <span style="background-color: #d1ecf1; color: #0c5460; padding: 0.25rem 0.75rem; border-radius: 4px;">{{ order.get_status_display }}</span>
+                        {% elif order.status == 'COMPLETED' %}
+                            <span style="background-color: #28a745; color: white; padding: 0.25rem 0.75rem; border-radius: 4px;">{{ order.get_status_display }}</span>
+                        {% else %}
+                            <span style="background-color: #e0e0e0; color: #666; padding: 0.25rem 0.75rem; border-radius: 4px;">{{ order.get_status_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 1rem;">
+                        {% if order.priority == 'URGENT' %}
+                            <span style="color: #dc3545; font-weight: bold;">🔴 {{ order.get_priority_display }}</span>
+                        {% elif order.priority == 'HIGH' %}
+                            <span style="color: #ffc107; font-weight: bold;">🟡 {{ order.get_priority_display }}</span>
+                        {% else %}
+                            <span style="color: #666;">{{ order.get_priority_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 1rem;">
+                        <a href="{% url 'manufacturing_order_detail' order.id %}" style="color: #be8400; text-decoration: none;">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+    
+    <!-- Quick Actions -->
+    <div style="margin: 2rem 0;">
+        <h2 style="font-size: 1.6rem; color: #000000; margin-bottom: 1rem;">Quick Actions</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.2rem;">
+            <a href="{% url 'bom_list' %}" style="text-decoration: none;">
+                <div style="background-color: #f8f8f8; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; text-align: center;">
+                    <div style="font-size: 2rem; margin-bottom: 0.75rem;">📋</div>
+                    <div style="font-weight: bold; color: #000000;">Bills of Materials</div>
+                    <div style="color: #666; font-size: 0.85rem; margin-top: 0.4rem;">Manage product recipes</div>
+                </div>
+            </a>
+            
+            <a href="{% url 'manufacturing_orders' %}" style="text-decoration: none;">
+                <div style="background-color: #f8f8f8; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; text-align: center;">
+                    <div style="font-size: 2rem; margin-bottom: 0.75rem;">📦</div>
+                    <div style="font-weight: bold; color: #000000;">Production Orders</div>
+                    <div style="color: #666; font-size: 0.85rem; margin-top: 0.4rem;">View all manufacturing orders</div>
+                </div>
+            </a>
+            
+            <a href="{% url 'manufacturing_order_create' %}" style="text-decoration: none;">
+                <div style="background-color: #f8f8f8; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; text-align: center;">
+                    <div style="font-size: 2rem; margin-bottom: 0.75rem;">➕</div>
+                    <div style="font-weight: bold; color: #000000;">New Production Order</div>
+                    <div style="color: #666; font-size: 0.85rem; margin-top: 0.4rem;">Start a new manufacturing run</div>
+                </div>
+            </a>
+            
+            <a href="{% url 'manufacturing_materials' %}" style="text-decoration: none;">
+                <div style="background-color: #f8f8f8; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; text-align: center;">
+                    <div style="font-size: 2rem; margin-bottom: 0.75rem;">🧱</div>
+                    <div style="font-weight: bold; color: #000000;">Raw Materials</div>
+                    <div style="color: #666; font-size: 0.85rem; margin-top: 0.4rem;">View available materials</div>
+                </div>
+            </a>
+            
+            <a href="{% url 'manufacturing_analytics' %}" style="text-decoration: none;">
+                <div style="background-color: #f8f8f8; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; text-align: center;">
+                    <div style="font-size: 2rem; margin-bottom: 0.75rem;">📊</div>
+                    <div style="font-weight: bold; color: #000000;">Analytics</div>
+                    <div style="color: #666; font-size: 0.85rem; margin-top: 0.4rem;">Production performance & impact</div>
+                </div>
+            </a>
+            
+            <a href="{% url 'vendor_dashboard' %}" style="text-decoration: none;">
+                <div style="background-color: #f8f8f8; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; text-align: center;">
+                    <div style="font-size: 2rem; margin-bottom: 0.75rem;">🏠</div>
+                    <div style="font-weight: bold; color: #000000;">Back to Dashboard</div>
+                    <div style="color: #666; font-size: 0.85rem; margin-top: 0.4rem;">Return to vendor dashboard</div>
+                </div>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Recent Completed Orders -->
+    {% if recent_completed %}
+    <div class="card">
+        <div class="card-header">✅ Recently Completed Orders</div>
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 2px solid #e0e0e0;">
+                    <th style="padding: 1rem; text-align: left;">Order #</th>
+                    <th style="padding: 1rem; text-align: left;">Product</th>
+                    <th style="padding: 1rem; text-align: left;">Quantity Produced</th>
+                    <th style="padding: 1rem; text-align: left;">Completed</th>
+                    <th style="padding: 1rem; text-align: left;">Local %</th>
+                    <th style="padding: 1rem; text-align: left;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in recent_completed %}
+                <tr style="border-bottom: 1px solid #e0e0e0;">
+                    <td style="padding: 1rem;"><strong>{{ order.mo_number }}</strong></td>
+                    <td style="padding: 1rem;">{{ order.product.name }}</td>
+                    <td style="padding: 1rem;">{{ order.quantity_produced }}</td>
+                    <td style="padding: 1rem;">{{ order.completed_at|date:"M d, Y H:i" }}</td>
+                    <td style="padding: 1rem;">
+                        {% if order.local_materials_percentage %}
+                            <span style="color: #28a745; font-weight: bold;">{{ order.local_materials_percentage|floatformat:1 }}%</span>
+                        {% else %}
+                            <span style="color: #666;">N/A</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 1rem;">
+                        <a href="{% url 'manufacturing_order_detail' order.id %}" style="color: #be8400; text-decoration: none;">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="card">
+        <div style="text-align: center; padding: 3rem;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🏭</div>
+            <h3 style="color: #000000; margin-bottom: 1rem;">Welcome to Manufacturing!</h3>
+            <p style="color: #666; margin-bottom: 1.5rem;">Start by creating Bills of Materials (BOMs) for your products, then create production orders.</p>
+            <a href="{% url 'bom_list' %}" class="btn btn-primary">Create Your First BOM</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

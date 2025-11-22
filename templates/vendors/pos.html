@@ -4,15 +4,16 @@
 {% block title %}Point of Sale - {{ vendor_profile.company_name }}{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <h2><i class="fas fa-cash-register"></i> Point of Sale</h2>
-            <p class="text-muted">Create receipts for walk-in customers</p>
-        </div>
+<div class="container">
+    <div style="margin-bottom: 2rem; margin-top: 2rem;">
+        <a href="{% url 'vendor_dashboard' %}" style="color: #be8400; text-decoration: none;">← Back to Dashboard</a>
+    </div>
+    <div style="margin-bottom: 2rem;">
+        <h1 style="font-size: 2.5rem; color: #000000; margin-bottom: 0.5rem;">🛒 Point of Sale</h1>
+        <p style="color: #666;">Create receipts for walk-in customers</p>
     </div>
 
-    <div class="row">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
         <!-- Product Selection -->
         <div class="col-md-7">
             <div class="card shadow-sm">

@@ -45,7 +45,7 @@ def on_order_status_changed(sender, instance, **kwargs):
 
 # Payment Signals
 
-@receiver(post_save, sender='payments.Payment')
+@receiver(post_save, sender='payments.PaymentTransaction')
 def on_payment_processed(sender, instance, created, **kwargs):
     """Notify vendor and customer when payment is processed"""
     if created and instance.status == 'COMPLETED':
@@ -59,7 +59,7 @@ def on_payment_processed(sender, instance, created, **kwargs):
 
 # Review Signals
 
-@receiver(post_save, sender='products.Review')
+@receiver(post_save, sender='products.ProductReview')
 def on_review_created(sender, instance, created, **kwargs):
     """Notify vendor when new review is created"""
     if created and instance.product.vendor:
@@ -133,7 +133,7 @@ def on_manufacturing_complete(sender, instance, **kwargs):
 
 # Project Signals
 
-@receiver(post_save, sender='projects.Project')
+@receiver(post_save, sender='projects.CommunityProject')
 def on_project_created(sender, instance, created, **kwargs):
     """Notify customers when new community project is created"""
     if created:

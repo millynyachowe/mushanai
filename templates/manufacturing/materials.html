@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Raw Materials - Mushanai{% endblock %}
+{% block content %}
+<div class="container">
+    <div style="margin-bottom: 2rem;">
+        <a href="{% url 'manufacturing_dashboard' %}" style="color: #be8400; text-decoration: none;">← Back to Manufacturing</a>
+    </div>
+    <h1 style="font-size: 2.5rem; color: #000000; margin-bottom: 2rem;">🧱 Raw Materials</h1>
+    <div class="card">
+        <div style="text-align: center; padding: 3rem;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🧱</div>
+            <h3 style="color: #000000; margin-bottom: 1rem;">Material Management</h3>
+            <p style="color: #666;">View and manage your raw materials inventory here.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

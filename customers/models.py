@@ -561,7 +561,7 @@ class NotificationLog(models.Model):
         ('GENERAL', 'General'),
     ]
     
-    customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications', limit_choices_to={'user_type': 'CUSTOMER'})
+    customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='customer_notifications', limit_choices_to={'user_type': 'CUSTOMER'})
     notification_type = models.CharField(max_length=30, choices=NOTIFICATION_TYPE_CHOICES)
     title = models.CharField(max_length=200)
     message = models.TextField()
