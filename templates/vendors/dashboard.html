@@ -3,11 +3,21 @@
 {% block title %}Vendor Dashboard - Mushanai{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div style="margin-bottom: 2rem;">
-        <h1 style="font-size: 2.5rem; color: #000000; margin-bottom: 0.5rem;">Welcome, {{ vendor_profile.company_name }}</h1>
-        <p style="color: #666;">Manage your products, view analytics, and grow your business</p>
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="page-header">
+        <div class="text-center">
+            <h1 class="page-title">
+                <i class="fas fa-store text-primary me-2"></i>
+                Vendor Dashboard
+            </h1>
+            <p class="page-subtitle">
+                Welcome, {{ vendor_profile.company_name }}. Manage your products, view analytics, and grow your business.
+            </p>
+        </div>
     </div>
+    
+<div class="container">
     
     <div class="stats-grid">
         <div class="stat-card">
@@ -144,93 +154,138 @@
         </div>
     </div>
     
-    <div style="margin: 2rem 0;">
-        <h2 style="font-size: 1.6rem; color: #000000; margin-bottom: 1rem;">Quick Actions</h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.2rem;">
-            <a href="{% url 'vendor_product_create' %}" style="text-decoration: none;">
-                <div style="background-color: #f8f8f8; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; text-align: center; transition: transform 0.2s, box-shadow 0.2s;">
-                    <div style="font-size: 2rem; margin-bottom: 0.75rem;">➕</div>
-                    <div style="font-weight: bold; color: #000000;">Add New Product</div>
-                    <div style="color: #666; font-size: 0.85rem; margin-top: 0.4rem;">Create and publish a new product</div>
-                </div>
-            </a>
-            <a href="{% url 'vendor_product_list' %}" style="text-decoration: none;">
-                <div style="background-color: #f8f8f8; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; text-align: center; transition: transform 0.2s, box-shadow 0.2s;">
-                    <div style="font-size: 2rem; margin-bottom: 0.75rem;">📦</div>
-                    <div style="font-weight: bold; color: #000000;">View All Products</div>
-                    <div style="color: #666; font-size: 0.85rem; margin-top: 0.4rem;">Manage your product catalogue</div>
-                </div>
-            </a>
-            <a href="{% url 'vendor_reviews' %}" style="text-decoration: none;">
-                <div style="background-color: #f8f8f8; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; text-align: center; transition: transform 0.2s, box-shadow 0.2s;">
-                    <div style="font-size: 2rem; margin-bottom: 0.75rem;">💬</div>
-                    <div style="font-weight: bold; color: #000000;">Manage Reviews</div>
-                    <div style="color: #666; font-size: 0.85rem; margin-top: 0.4rem;">Respond to customer feedback</div>
-                </div>
-            </a>
-            <a href="{% url 'vendor_analytics_dashboard' %}" style="text-decoration: none;">
-                <div style="background-color: #f8f8f8; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; text-align: center; transition: transform 0.2s, box-shadow 0.2s;">
-                    <div style="font-size: 2rem; margin-bottom: 0.75rem;">📊</div>
-                    <div style="font-weight: bold; color: #000000;">View Analytics</div>
-                    <div style="color: #666; font-size: 0.85rem; margin-top: 0.4rem;">Understand your performance</div>
-                </div>
-            </a>
-            <a href="{% url 'vendor_profile' %}" style="text-decoration: none;">
-                <div style="background-color: #f8f8f8; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; text-align: center; transition: transform 0.2s, box-shadow 0.2s;">
-                    <div style="font-size: 2rem; margin-bottom: 0.75rem;">⚙️</div>
-                    <div style="font-weight: bold; color: #000000;">Edit Profile</div>
-                    <div style="color: #666; font-size: 0.85rem; margin-top: 0.4rem;">Update your business details</div>
-                </div>
-            </a>
-            <a href="{% url 'vendor_payment_settings' %}" style="text-decoration: none;">
-                <div style="background-color: #f8f8f8; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; text-align: center; transition: transform 0.2s, box-shadow 0.2s;">
-                    <div style="font-size: 2rem; margin-bottom: 0.75rem;">💳</div>
-                    <div style="font-weight: bold; color: #000000;">Payment & Delivery</div>
-                    <div style="color: #666; font-size: 0.85rem; margin-top: 0.4rem;">Configure payments and delivery fees</div>
-                </div>
-            </a>
-            <a href="{% url 'vendor_payment_inbox' %}" style="text-decoration: none;">
-                <div style="background-color: #f8f8f8; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; text-align: center; transition: transform 0.2s, box-shadow 0.2s;">
-                    <div style="font-size: 2rem; margin-bottom: 0.75rem;">📥</div>
-                    <div style="font-weight: bold; color: #000000;">Payment Inbox</div>
-                    <div style="color: #666; font-size: 0.85rem; margin-top: 0.4rem;">Review proof of payment and acknowledge</div>
-                </div>
-            </a>
-            <a href="{% url 'vendor_pos' %}" style="text-decoration: none;">
-                <div style="background-color: #f8f8f8; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; text-align: center; transition: transform 0.2s, box-shadow 0.2s;">
-                    <div style="font-size: 2rem; margin-bottom: 0.75rem;">🛒</div>
-                    <div style="font-weight: bold; color: #000000;">POS / Sales</div>
-                    <div style="color: #666; font-size: 0.85rem; margin-top: 0.4rem;">Record in-person sales and receipts</div>
-                </div>
-            </a>
-            <a href="{% url 'vendor_accounting_dashboard' %}" style="text-decoration: none;">
-                <div style="background-color: #f8f8f8; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; text-align: center; transition: transform 0.2s, box-shadow 0.2s;">
-                    <div style="font-size: 2rem; margin-bottom: 0.75rem;">💰</div>
-                    <div style="font-weight: bold; color: #000000;">Accounting</div>
-                    <div style="color: #666; font-size: 0.85rem; margin-top: 0.4rem;">Track expenses, revenue & invoices</div>
-                </div>
-            </a>
-            <a href="{% url 'vendor_expenses_list' %}" style="text-decoration: none;">
-                <div style="background-color: #f8f8f8; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; text-align: center; transition: transform 0.2s, box-shadow 0.2s;">
-                    <div style="font-size: 2rem; margin-bottom: 0.75rem;">📝</div>
-                    <div style="font-weight: bold; color: #000000;">Expenses</div>
-                    <div style="color: #666; font-size: 0.85rem; margin-top: 0.4rem;">Manage and track your expenses</div>
-                </div>
-            </a>
-            <a href="{% url 'vendor_receipts_list' %}" style="text-decoration: none;">
-                <div style="background-color: #f8f8f8; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; text-align: center; transition: transform 0.2s, box-shadow 0.2s;">
-                    <div style="font-size: 2rem; margin-bottom: 0.75rem;">🧾</div>
-                    <div style="font-weight: bold; color: #000000;">Receipts</div>
-                    <div style="color: #666; font-size: 0.85rem; margin-top: 0.4rem;">View and manage sales receipts</div>
-                </div>
-            </a>
-            <a href="{% url 'manufacturing_dashboard' %}" style="text-decoration: none;">
-                <div style="background-color: #f8f8f8; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; text-align: center; transition: transform 0.2s, box-shadow 0.2s;">
-                    <div style="font-size: 2rem; margin-bottom: 0.75rem;">🏭</div>
-                    <div style="font-weight: bold; color: #000000;">Manufacturing</div>
-                    <div style="color: #666; font-size: 0.85rem; margin-top: 0.4rem;">Manage production & BOMs</div>
-                </div>
-            </a>
+    <!-- App Icons Section -->
+    <div class="app-grid-container">
+        <div class="app-grid">
+            <!-- Products -->
+            <div class="app-item">
+                <a href="{% url 'vendor_product_list' %}" class="app-link">
+                    <div class="app-icon products-icon">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <span class="app-name">Products</span>
+                    <span class="app-info" title="Manage your product catalogue and add new items">
+                        <i class="fas fa-info-circle"></i>
+                    </span>
+                </a>
+            </div>
+
+            <!-- POS -->
+            <div class="app-item">
+                <a href="{% url 'vendor_pos' %}" class="app-link">
+                    <div class="app-icon pos-icon">
+                        <i class="fas fa-cash-register"></i>
+                    </div>
+                    <span class="app-name">POS</span>
+                    <span class="app-info" title="Record in-person sales and generate receipts">
+                        <i class="fas fa-info-circle"></i>
+                    </span>
+                </a>
+            </div>
+
+            <!-- Accounting -->
+            <div class="app-item">
+                <a href="{% url 'vendor_accounting_dashboard' %}" class="app-link">
+                    <div class="app-icon accounting-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <span class="app-name">Accounting</span>
+                    <span class="app-info" title="Track expenses, revenue, and financial reports">
+                        <i class="fas fa-info-circle"></i>
+                    </span>
+                </a>
+            </div>
+
+            <!-- Expenses -->
+            <div class="app-item">
+                <a href="{% url 'vendor_expenses_list' %}" class="app-link">
+                    <div class="app-icon expenses-icon">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <span class="app-name">Expenses</span>
+                    <span class="app-info" title="Record and categorize business expenses">
+                        <i class="fas fa-info-circle"></i>
+                    </span>
+                </a>
+            </div>
+
+            <!-- Manufacturing -->
+            <div class="app-item">
+                <a href="{% url 'manufacturing_dashboard' %}" class="app-link">
+                    <div class="app-icon manufacturing-icon">
+                        <i class="fas fa-industry"></i>
+                    </div>
+                    <span class="app-name">Manufacturing</span>
+                    <span class="app-info" title="Manage production orders and bills of materials">
+                        <i class="fas fa-info-circle"></i>
+                    </span>
+                </a>
+            </div>
+
+            <!-- Receipts -->
+            <div class="app-item">
+                <a href="{% url 'vendor_receipts_list' %}" class="app-link">
+                    <div class="app-icon receipts-icon">
+                        <i class="fas fa-file-invoice"></i>
+                    </div>
+                    <span class="app-name">Receipts</span>
+                    <span class="app-info" title="View and manage all sales receipts">
+                        <i class="fas fa-info-circle"></i>
+                    </span>
+                </a>
+            </div>
+
+            <!-- Analytics -->
+            <div class="app-item">
+                <a href="{% url 'vendor_analytics_dashboard' %}" class="app-link">
+                    <div class="app-icon analytics-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <span class="app-name">Analytics</span>
+                    <span class="app-info" title="View sales performance and business insights">
+                        <i class="fas fa-info-circle"></i>
+                    </span>
+                </a>
+            </div>
+
+            <!-- Reviews -->
+            <div class="app-item">
+                <a href="{% url 'vendor_reviews' %}" class="app-link">
+                    <div class="app-icon reviews-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <span class="app-name">Reviews</span>
+                    <span class="app-info" title="Manage and respond to customer reviews">
+                        <i class="fas fa-info-circle"></i>
+                    </span>
+                </a>
+            </div>
+
+            <!-- Payments -->
+            <div class="app-item">
+                <a href="{% url 'vendor_payment_inbox' %}" class="app-link">
+                    <div class="app-icon payments-icon">
+                        <i class="fas fa-money-check-alt"></i>
+                    </div>
+                    <span class="app-name">Payments</span>
+                    <span class="app-info" title="Review payment proofs and acknowledge orders">
+                        <i class="fas fa-info-circle"></i>
+                    </span>
+                </a>
+            </div>
+
+            <!-- Settings -->
+            <div class="app-item">
+                <a href="{% url 'vendor_profile' %}" class="app-link">
+                    <div class="app-icon settings-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <span class="app-name">Settings</span>
+                    <span class="app-info" title="Update profile, payment methods, and delivery settings">
+                        <i class="fas fa-info-circle"></i>
+                    </span>
+                </a>
+            </div>
         </div>
     </div>
     
@@ -370,4 +425,200 @@
     </div>
     {% endif %}
 </div>
+</div>
+
+<style>
+/* Page Header Styles */
+.page-header {
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+}
+
+.page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 0.5rem;
+}
+
+.page-subtitle {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 0;
+}
+
+.text-primary {
+    color: #be8400 !important;
+}
+
+
+/* App Grid Styles */
+.app-grid-container {
+    display: flex;
+    justify-content: center;
+    padding: 0 15px;
+    margin-bottom: 40px;
+}
+
+.app-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 30px;
+    max-width: 1000px;
+    width: 100%;
+    padding: 20px;
+}
+
+.app-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+}
+
+.app-link {
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.app-link:hover {
+    text-decoration: none;
+    color: inherit;
+    transform: translateY(-2px);
+}
+
+.app-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.app-icon::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.app-icon:hover::before {
+    opacity: 1;
+}
+
+.app-icon:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.app-icon i {
+    font-size: 32px;
+    color: white;
+    z-index: 1;
+}
+
+.app-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    margin-top: 5px;
+    white-space: nowrap;
+}
+
+.app-info {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 18px;
+    height: 18px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: help;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.app-item:hover .app-info {
+    opacity: 1;
+}
+
+.app-info i {
+    font-size: 10px;
+    color: white;
+}
+
+/* Unique App Icon Colors with Beautiful Gradients */
+.products-icon { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+.pos-icon { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+.accounting-icon { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+.expenses-icon { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%); }
+.manufacturing-icon { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+.receipts-icon { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+.analytics-icon { background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); }
+.reviews-icon { background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); }
+.payments-icon { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+.settings-icon { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .app-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        padding: 10px;
+    }
+    
+    .app-icon {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .app-icon i {
+        font-size: 28px;
+    }
+    
+    .app-name {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .app-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    .app-icon {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .app-icon i {
+        font-size: 24px;
+    }
+    
+    .app-name {
+        font-size: 10px;
+    }
+}
+</style>
 {% endblock %}
