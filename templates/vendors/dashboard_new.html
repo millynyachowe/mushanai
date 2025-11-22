@@ -1,0 +1,696 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Vendor Dashboard - Mushanai{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="page-header text-center mb-5">
+        <h1 class="page-title">
+            <i class="fas fa-tachometer-alt text-primary me-2"></i>
+            Vendor Dashboard
+        </h1>
+        <p class="page-subtitle text-muted">
+            Welcome back, <strong>{{ user.get_full_name }}</strong>. Manage your business from one place.
+        </p>
+    </div>
+
+    <!-- Module Grid -->
+    <div class="modules-grid-container">
+        <div class="modules-grid">
+            
+            <!-- Products Module -->
+            <div class="module-item">
+                <a href="{% url 'vendor_products_list' %}" class="module-link">
+                    <div class="module-icon products-icon">
+                        <i class="bi bi-box-seam"></i>
+                    </div>
+                    <span class="module-name">Products</span>
+                    <div class="module-info" data-bs-toggle="tooltip" data-bs-placement="top" 
+                         data-bs-title="Manage your product catalog, inventory, pricing, and stock levels. Add new products and track performance.">
+                        <i class="bi bi-question-circle"></i>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Orders Module -->
+            <div class="module-item">
+                <a href="{% url 'vendor_orders' %}" class="module-link">
+                    <div class="module-icon orders-icon">
+                        <i class="bi bi-cart-check"></i>
+                    </div>
+                    <span class="module-name">Orders</span>
+                    <div class="module-info" data-bs-toggle="tooltip" data-bs-placement="top" 
+                         data-bs-title="View and manage customer orders. Process shipments, track order status, and handle refunds.">
+                        <i class="bi bi-question-circle"></i>
+                    </div>
+                </a>
+            </div>
+
+            <!-- POS Module -->
+            <div class="module-item">
+                <a href="{% url 'vendor_pos' %}" class="module-link">
+                    <div class="module-icon pos-icon">
+                        <i class="bi bi-shop"></i>
+                    </div>
+                    <span class="module-name">POS</span>
+                    <div class="module-info" data-bs-toggle="tooltip" data-bs-placement="top" 
+                         data-bs-title="Point of Sale system for walk-in customers. Record cash sales, generate receipts, and manage in-person transactions.">
+                        <i class="bi bi-question-circle"></i>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Accounting Module -->
+            <div class="module-item">
+                <a href="{% url 'vendor_accounting_dashboard' %}" class="module-link">
+                    <div class="module-icon accounting-icon">
+                        <i class="bi bi-calculator"></i>
+                    </div>
+                    <span class="module-name">Accounting</span>
+                    <div class="module-info" data-bs-toggle="tooltip" data-bs-placement="top" 
+                         data-bs-title="Track income, expenses, invoices, and financial reports. Manage your business finances in one place.">
+                        <i class="bi bi-question-circle"></i>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Expenses Module -->
+            <div class="module-item">
+                <a href="{% url 'vendor_expenses_list' %}" class="module-link">
+                    <div class="module-icon expenses-icon">
+                        <i class="bi bi-receipt"></i>
+                    </div>
+                    <span class="module-name">Expenses</span>
+                    <div class="module-info" data-bs-toggle="tooltip" data-bs-placement="top" 
+                         data-bs-title="Record and categorize business expenses. Track spending, upload receipts, and generate expense reports.">
+                        <i class="bi bi-question-circle"></i>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Promotions Module -->
+            <div class="module-item">
+                <a href="{% url 'vendor_promotions_list' %}" class="module-link">
+                    <div class="module-icon promotions-icon">
+                        <i class="bi bi-tags"></i>
+                    </div>
+                    <span class="module-name">Promotions</span>
+                    <div class="module-info" data-bs-toggle="tooltip" data-bs-placement="top" 
+                         data-bs-title="Create sales, discounts, and seasonal promotions. Choose from 15 styles including Black Friday, Christmas, and more.">
+                        <i class="bi bi-question-circle"></i>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Manufacturing Module -->
+            <div class="module-item">
+                <a href="{% url 'manufacturing_dashboard' %}" class="module-link">
+                    <div class="module-icon manufacturing-icon">
+                        <i class="bi bi-gear-fill"></i>
+                    </div>
+                    <span class="module-name">Manufacturing</span>
+                    <div class="module-info" data-bs-toggle="tooltip" data-bs-placement="top" 
+                         data-bs-title="Manage production orders, bills of materials, quality checks, and track manufacturing costs and labor.">
+                        <i class="bi bi-question-circle"></i>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Suppliers Module -->
+            <div class="module-item">
+                <a href="{% url 'vendor_suppliers_list' %}" class="module-link">
+                    <div class="module-icon suppliers-icon">
+                        <i class="bi bi-truck"></i>
+                    </div>
+                    <span class="module-name">Suppliers</span>
+                    <div class="module-info" data-bs-toggle="tooltip" data-bs-placement="top" 
+                         data-bs-title="Browse raw materials marketplace, contact suppliers, and purchase materials for your production.">
+                        <i class="bi bi-question-circle"></i>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Analytics Module -->
+            <div class="module-item">
+                <a href="{% url 'vendor_analytics' %}" class="module-link">
+                    <div class="module-icon analytics-icon">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <span class="module-name">Analytics</span>
+                    <div class="module-info" data-bs-toggle="tooltip" data-bs-placement="top" 
+                         data-bs-title="View sales trends, revenue reports, customer insights, and business performance metrics.">
+                        <i class="bi bi-question-circle"></i>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Social Media Module -->
+            <div class="module-item">
+                <a href="{% url 'social_media_dashboard' %}" class="module-link">
+                    <div class="module-icon social-icon">
+                        <i class="bi bi-share"></i>
+                    </div>
+                    <span class="module-name">Social Media</span>
+                    <div class="module-info" data-bs-toggle="tooltip" data-bs-placement="top" 
+                         data-bs-title="Post products to Facebook and Instagram. Connect accounts, schedule posts, and track engagement.">
+                        <i class="bi bi-question-circle"></i>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Reviews Module -->
+            <div class="module-item">
+                <a href="{% url 'vendor_reviews' %}" class="module-link">
+                    <div class="module-icon reviews-icon">
+                        <i class="bi bi-star"></i>
+                    </div>
+                    <span class="module-name">Reviews</span>
+                    <div class="module-info" data-bs-toggle="tooltip" data-bs-placement="top" 
+                         data-bs-title="Manage customer reviews and ratings. Respond to feedback and improve your products based on insights.">
+                        <i class="bi bi-question-circle"></i>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Discussions Module -->
+            <div class="module-item">
+                <a href="{% url 'vendor_discussions' %}" class="module-link">
+                    <div class="module-icon discussions-icon">
+                        <i class="bi bi-chat-dots"></i>
+                    </div>
+                    <span class="module-name">Discussions</span>
+                    <div class="module-info" data-bs-toggle="tooltip" data-bs-placement="top" 
+                         data-bs-title="Community forum for vendors. Share tips, ask questions, and network with other sellers on Mushanai.">
+                        <i class="bi bi-question-circle"></i>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Settings Module -->
+            <div class="module-item">
+                <a href="{% url 'vendor_settings' %}" class="module-link">
+                    <div class="module-icon settings-icon">
+                        <i class="bi bi-gear"></i>
+                    </div>
+                    <span class="module-name">Settings</span>
+                    <div class="module-info" data-bs-toggle="tooltip" data-bs-placement="top" 
+                         data-bs-title="Configure your vendor profile, payment methods, shipping options, and notification preferences.">
+                        <i class="bi bi-question-circle"></i>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Reports Module -->
+            <div class="module-item">
+                <a href="{% url 'vendor_reports' %}" class="module-link">
+                    <div class="module-icon reports-icon">
+                        <i class="bi bi-file-earmark-text"></i>
+                    </div>
+                    <span class="module-name">Reports</span>
+                    <div class="module-info" data-bs-toggle="tooltip" data-bs-placement="top" 
+                         data-bs-title="Generate and download financial reports, sales summaries, and tax documents for your business.">
+                        <i class="bi bi-question-circle"></i>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Notifications Module -->
+            <div class="module-item">
+                <a href="{% url 'notification_list' %}" class="module-link">
+                    <div class="module-icon notifications-icon">
+                        <i class="bi bi-bell"></i>
+                    </div>
+                    <span class="module-name">Notifications</span>
+                    <div class="module-info" data-bs-toggle="tooltip" data-bs-placement="top" 
+                         data-bs-title="View all notifications about orders, payments, reviews, and important updates from Mushanai.">
+                        <i class="bi bi-question-circle"></i>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Quick Stats Section -->
+    <div class="row g-4 mt-5">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon sales-stat">
+                    <i class="bi bi-cash-coin"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">${{ stats.total_sales|floatformat:2 }}</h3>
+                    <p class="stat-label">Total Sales</p>
+                    <span class="stat-change positive">
+                        <i class="bi bi-arrow-up"></i> 12.5%
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon orders-stat">
+                    <i class="bi bi-cart-check"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">{{ stats.total_orders }}</h3>
+                    <p class="stat-label">Orders</p>
+                    <span class="stat-change positive">
+                        <i class="bi bi-arrow-up"></i> 8.2%
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon products-stat">
+                    <i class="bi bi-box-seam"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">{{ stats.total_products }}</h3>
+                    <p class="stat-label">Products</p>
+                    <span class="stat-change neutral">
+                        <i class="bi bi-dash"></i> 0%
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon customers-stat">
+                    <i class="bi bi-people"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">{{ stats.total_customers }}</h3>
+                    <p class="stat-label">Customers</p>
+                    <span class="stat-change positive">
+                        <i class="bi bi-arrow-up"></i> 15.3%
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Odoo-Style Module Grid */
+.modules-grid-container {
+    display: flex;
+    justify-content: center;
+    padding: 0 20px;
+    margin-bottom: 50px;
+}
+
+.modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    width: 100%;
+    padding: 20px;
+}
+
+.module-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+}
+
+.module-link {
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    position: relative;
+}
+
+.module-link:hover {
+    text-decoration: none;
+    color: inherit;
+    transform: translateY(-5px);
+}
+
+.module-icon {
+    width: 90px;
+    height: 90px;
+    border-radius: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    position: relative;
+    overflow: hidden;
+}
+
+.module-icon::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.module-icon:hover::before {
+    opacity: 1;
+}
+
+.module-icon:hover {
+    transform: scale(1.08) rotateZ(2deg);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+}
+
+.module-icon i {
+    font-size: 38px;
+    color: white;
+    z-index: 1;
+    transition: transform 0.3s ease;
+}
+
+.module-icon:hover i {
+    transform: scale(1.1);
+}
+
+.module-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2d3748;
+    margin-top: 8px;
+    white-space: nowrap;
+    transition: color 0.3s ease;
+}
+
+.module-link:hover .module-name {
+    color: #667eea;
+}
+
+/* Info Button (Question Mark) - Odoo Style */
+.module-info {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 24px;
+    height: 24px;
+    background: #fff;
+    border: 2px solid #667eea;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: help;
+    z-index: 10;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.module-info:hover {
+    transform: scale(1.15);
+    background: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+}
+
+.module-info i {
+    font-size: 14px;
+    color: #667eea;
+    transition: color 0.3s ease;
+}
+
+.module-info:hover i {
+    color: #fff;
+}
+
+/* Unique Module Colors - Vibrant Gradients */
+.products-icon { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+.orders-icon { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+.pos-icon { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+.accounting-icon { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+.expenses-icon { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+.promotions-icon { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+.manufacturing-icon { background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%); }
+.suppliers-icon { background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); }
+.analytics-icon { background: linear-gradient(135deg, #fdbb2d 0%, #22c1c3 100%); }
+.social-icon { background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); }
+.reviews-icon { background: linear-gradient(135deg, #f8cdda 0%, #1d2b64 100%); }
+.discussions-icon { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%); }
+.settings-icon { background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); }
+.reports-icon { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); }
+.notifications-icon { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+
+/* Bootstrap Tooltip Customization */
+.tooltip {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.tooltip-inner {
+    background-color: #2d3748;
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    max-width: 280px;
+    text-align: left;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.tooltip-arrow::before {
+    border-top-color: #2d3748 !important;
+}
+
+/* Quick Stats Cards */
+.stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.stat-icon i {
+    font-size: 28px;
+    color: white;
+}
+
+.sales-stat { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+.orders-stat { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+.products-stat { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+.customers-stat { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #718096;
+    margin: 6px 0;
+    font-weight: 500;
+}
+
+.stat-change {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 6px;
+    display: inline-block;
+}
+
+.stat-change.positive {
+    background: #d4f4dd;
+    color: #22c55e;
+}
+
+.stat-change.negative {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+.stat-change.neutral {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+/* Page Header */
+.page-header {
+    margin-bottom: 40px;
+}
+
+.page-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 8px;
+}
+
+.page-subtitle {
+    font-size: 16px;
+    color: #718096;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    .modules-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 25px;
+    }
+    
+    .module-icon {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .module-icon i {
+        font-size: 32px;
+    }
+}
+
+@media (max-width: 768px) {
+    .modules-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        padding: 10px;
+    }
+    
+    .module-icon {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .module-icon i {
+        font-size: 28px;
+    }
+    
+    .module-name {
+        font-size: 12px;
+    }
+    
+    .module-info {
+        width: 20px;
+        height: 20px;
+        top: -6px;
+        right: -6px;
+    }
+    
+    .module-info i {
+        font-size: 12px;
+    }
+    
+    .stat-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .modules-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    .module-icon {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .module-icon i {
+        font-size: 24px;
+    }
+    
+    .module-name {
+        font-size: 11px;
+    }
+}
+
+/* Smooth Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.module-item {
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+.module-item:nth-child(1) { animation-delay: 0.05s; }
+.module-item:nth-child(2) { animation-delay: 0.1s; }
+.module-item:nth-child(3) { animation-delay: 0.15s; }
+.module-item:nth-child(4) { animation-delay: 0.2s; }
+.module-item:nth-child(5) { animation-delay: 0.25s; }
+.module-item:nth-child(6) { animation-delay: 0.3s; }
+.module-item:nth-child(7) { animation-delay: 0.35s; }
+.module-item:nth-child(8) { animation-delay: 0.4s; }
+.module-item:nth-child(9) { animation-delay: 0.45s; }
+.module-item:nth-child(10) { animation-delay: 0.5s; }
+.module-item:nth-child(11) { animation-delay: 0.55s; }
+.module-item:nth-child(12) { animation-delay: 0.6s; }
+.module-item:nth-child(13) { animation-delay: 0.65s; }
+.module-item:nth-child(14) { animation-delay: 0.7s; }
+.module-item:nth-child(15) { animation-delay: 0.75s; }
+</style>
+
+<script>
+// Initialize Bootstrap tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl, {
+            trigger: 'hover',
+            html: true,
+            delay: { show: 300, hide: 100 }
+        });
+    });
+});
+</script>
+{% endblock %}
+

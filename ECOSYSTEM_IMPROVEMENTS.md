@@ -1,5 +1,12 @@
 # Mushanai Ecosystem Improvement Roadmap
 
+vendors
+manage expenses
+module called manufacturing which 
+called suppliers or raw materials, that takes them to a hidden page or an external link which has raw materials being sold, with full descriptions of the material.
+raw material suppliers can have their own portal where we can give them a link to register and add their raw materials
+
+
 ## 🎯 High-Impact Improvements (Quick Wins)
 
 ### 1. **Enhanced Discovery & Search**
